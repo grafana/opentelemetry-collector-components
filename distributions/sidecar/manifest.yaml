@@ -1,0 +1,15 @@
+dist:
+  module: github.com/grafana/opentelemetry-collector-components/distributions/sidecar
+  name: otelcol
+  description: OpenTelemetry Collector Sidecar by Grafana Labs
+  version: 0.39.0
+  output_path: ./_build
+  otelcol_version: 0.39.0
+  include_core: false
+
+receivers:
+  - import: go.opentelemetry.io/collector/receiver/otlpreceiver
+    gomod: go.opentelemetry.io/collector v0.39.0
+exporters:
+  - import: go.opentelemetry.io/collector/exporter/otlpexporter
+    gomod: go.opentelemetry.io/collector v0.39.0
