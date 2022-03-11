@@ -18,6 +18,8 @@ function teardown {
     echo "🔧 Tearing down..."
     ./test/stop-otelcol.sh -d ${distribution}
 
+    mkdir -p ./test/logs
+    
     echo "🪵 Grafana Labs '${distribution}' distribution of the OpenTelemetry Collector logs"
     cat ./test/logs/otelcol-${distribution}.log
 
