@@ -1,0 +1,32 @@
+extensions:
+  health_check:
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+  jaeger:
+    protocols:
+      thrift_binary:
+      thrift_compact:
+      grpc:
+  zipkin:
+
+processors:
+
+exporters:
+  otlp:
+    endpoint: example:4317 # this will fail to connect, but it shouldn't break the process
+
+service:
+  extensions: [health_check]
+  pipelines:
+    traces:
+      receivers:
+        - jaeger
+        - otlp
+        - zipkin
+      processors: []
+      exporters:
+        - otlp
+

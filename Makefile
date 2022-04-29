@@ -7,10 +7,13 @@ OTELCOL_BUILDER ?= ${OTELCOL_BUILDER_DIR}/ocb
 DISTRIBUTIONS ?= "sidecar,tracing"
 
 ci: check build
-check:
+check: test
 
 build: go ocb
 	@./scripts/build.sh -d "${DISTRIBUTIONS}" -b ${OTELCOL_BUILDER} -g ${GO}
+
+test: build
+	@./test/test-all.sh -d "${DISTRIBUTIONS}"
 
 generate: generate-sources
 
