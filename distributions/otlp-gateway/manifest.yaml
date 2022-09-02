@@ -1,0 +1,18 @@
+dist:
+  module: github.com/grafana/opentelemetry-collector-components/distributions/otlp-gateway
+  name: otlp-gateway
+  description: OTLP Gateway distribution of the OpenTelemetry Collector
+  version: 0.46.0
+  output_path: ./_build
+  otelcol_version: 0.46.0
+
+extensions:
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/healthcheckextension v0.46.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/basicauthextension v0.46.0
+receivers:
+  - import: go.opentelemetry.io/collector/receiver/otlpreceiver
+    gomod: go.opentelemetry.io/collector v0.46.0
+exporters:
+  - import: go.opentelemetry.io/collector/exporter/otlpexporter
+    gomod: go.opentelemetry.io/collector v0.46.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/exporter/lokiexporter v0.46.0
