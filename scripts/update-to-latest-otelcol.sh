@@ -8,6 +8,12 @@ if [ $? != 0 ]; then
     exit 1
 fi
 
+num_open_autoupdate_prs=$(gh pr list -l auto-update | wc -l)
+if (( num_open_autoupdate_prs > 0 )); then
+    echo "There are auto-update PRs waiting to be closed or merged. Skipping."
+    exit 0
+fi
+
 while getopts d:c: flag
 do
     case "${flag}" in
