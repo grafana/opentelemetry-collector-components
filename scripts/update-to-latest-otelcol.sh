@@ -54,8 +54,10 @@ if [ $latest_core_version != $latest_contrib_version ]; then
     fi
 fi
 
+branch="auto-update/core_${latest_core_version}_contrib_${latest_contrib_version}"
+
 # perhaps there are changes, let's switch to a specific branch
-git checkout -b auto-update/core_${latest_core_version}_contrib_${latest_contrib_version} main
+git checkout -b "${branch}" main
 
 # at this point, we are ready to start replacing the versions on the manifests
 manifests=$(find ${REPO_DIR} -name manifest.yaml)
@@ -89,7 +91,7 @@ if [[ $? != 0 ]]; then
 fi
 
 git commit -sm "Bump OpenTelemetry core and/or contrib versions"
-git push origin
+git push --set-upstream origin "${branch}"
 
 if [[ "$create_pr" = true ]]; then
     echo "Creating the pull request on your behalf."
