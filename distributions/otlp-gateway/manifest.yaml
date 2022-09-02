@@ -1,6 +1,6 @@
 dist:
   module: github.com/grafana/opentelemetry-collector-components/distributions/otlp-gateway
-  name: otlp-gateway
+  name: otelcol
   description: OTLP Gateway distribution of the OpenTelemetry Collector
   version: 0.46.0
   output_path: ./_build

@@ -1,0 +1,36 @@
+extensions:
+  health_check:
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+
+processors:
+
+exporters:
+  otlp:
+    endpoint: example.com:4317 # this will fail to connect, but it shouldn't break the process
+  loki:
+    endpoint: loki.example.com:4317
+    labels:
+      attributes:
+        pod_name:
+
+service:
+  extensions: [health_check]
+  pipelines:
+    traces:
+      receivers:
+        - otlp
+      processors: []
+      exporters:
+        - otlp
+
+    logs:
+      receivers:
+        - otlp
+      processors: []
+      exporters:
+        - loki
+
