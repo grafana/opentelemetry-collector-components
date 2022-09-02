@@ -54,6 +54,9 @@ if [ $latest_core_version != $latest_contrib_version ]; then
     fi
 fi
 
+# perhaps there are changes, let's switch to a specific branch
+git checkout -b auto-update/core_${latest_core_version}_contrib_${latest_contrib_version} main
+
 # at this point, we are ready to start replacing the versions on the manifests
 manifests=$(find ${REPO_DIR} -name manifest.yaml)
 for manifest in $manifests; do
