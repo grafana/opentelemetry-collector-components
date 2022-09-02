@@ -92,7 +92,7 @@ git commit -sm "Bump OpenTelemetry core and/or contrib versions"
 
 if [[ "$create_pr" = true ]]; then
     echo "Creating the pull request on your behalf."
-    gh pr create --title  "Bump OpenTelemetry core and/or contrib" --body "Use OpenTelemetry core v${latest_core_version} and contrib v${latest_contrib_version} in the manifests."
+    gh pr create -l auto-update --head --title  "Bump OpenTelemetry core and/or contrib" --body "Use OpenTelemetry core v${latest_core_version} and contrib v${latest_contrib_version} in the manifests."
 else
     echo "I could have created the pull request on your behalf if you had used the '-c' option."
 fi
