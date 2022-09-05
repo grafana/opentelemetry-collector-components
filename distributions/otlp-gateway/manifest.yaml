@@ -16,3 +16,8 @@ exporters:
   - import: go.opentelemetry.io/collector/exporter/otlpexporter
     gomod: go.opentelemetry.io/collector v0.59.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/exporter/lokiexporter v0.59.0
+
+excludes:
+  - cloud.google.com/go v0.65.0
+  - cloud.google.com/go v0.34.0
+  - cloud.google.com/go v0.26.0
