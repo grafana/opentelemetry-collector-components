@@ -7,7 +7,7 @@ do
     esac
 done
 if [[ -z $distribution ]]; then
-    echo "Distributioon to test not provided. Use '-d' to specify the names of the distribution to test. Ex.:"
+    echo "Distribution to test not provided. Use '-d' to specify the names of the distribution to test. Ex.:"
     echo "$0 -d tracing"
     exit 1
 fi
