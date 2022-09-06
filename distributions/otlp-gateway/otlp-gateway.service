@@ -1,0 +1,15 @@
+[Unit]
+Description=Grafana Lab's otlp-gateway distribution for the OpenTelemetry Collector
+After=network.target
+
+[Service]
+EnvironmentFile=/etc/otlp-gateway/otlp-gateway.conf
+ExecStart=/usr/bin/otlp-gateway $OTELCOL_OPTIONS
+KillMode=mixed
+Restart=on-failure
+Type=simple
+User=otlp-gateway
+Group=otlp-gateway
+
+[Install]
+WantedBy=multi-user.target

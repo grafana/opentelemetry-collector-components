@@ -1,6 +1,6 @@
 GO ?= go
 
-OTELCOL_BUILDER_VERSION ?= 0.46.0
+OTELCOL_BUILDER_VERSION ?= 0.59.0
 OTELCOL_BUILDER_DIR ?= ${HOME}/bin
 OTELCOL_BUILDER ?= ${OTELCOL_BUILDER_DIR}/ocb
 
@@ -15,7 +15,10 @@ build: go ocb
 test: build
 	@./test/test-all.sh -d "${DISTRIBUTIONS}"
 
-generate: generate-sources
+generate: generate-sources generate-goreleaser
+
+generate-goreleaser: go
+	@${GO} run -tags releaser goreleaser/main.go -d "${DISTRIBUTIONS}" > .goreleaser.yaml
 
 generate-sources: go ocb
 	@./scripts/build.sh -d "${DISTRIBUTIONS}" -s true -b ${OTELCOL_BUILDER} -g ${GO}

@@ -1,8 +1,8 @@
 dist:
-  module: github.com/grafana/opentelemetry-collector-components/distributions/sidecar
+  module: github.com/grafana/opentelemetry-collector-components/distributions/tracing
   name: otelcol
-  description: OpenTelemetry Collector for Tracing by Grafana Labs
-  version: 0.46.0
+  description: Grafana Lab's tracing distribution of the OpenTelemetry Collector
+  version: 0.0.1
   output_path: ./_build
   otelcol_version: 0.59.0
 

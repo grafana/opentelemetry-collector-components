@@ -1,3 +1,5 @@
 _build
 test/logs
 *.pid
+.vscode
+dist
