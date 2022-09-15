@@ -74,6 +74,9 @@ for manifest in $manifests; do
     sed -i "s~\(.*github.com/open-telemetry/opentelemetry-collector-contrib/.*\s\).*~\1v${latest_contrib_version}~" $manifest
 done
 
+# Update the Makefile
+sed -i "s/^OTELCOL_BUILDER_VERSION.*/OTELCOL_BUILDER_VERSION ?= ${latest_core_version}/" Makefile
+
 git diff --quiet $manifests
 if [[ $? == 0 ]]; then
     echo "We are already at the latest versions."
