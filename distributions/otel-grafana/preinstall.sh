@@ -14,4 +14,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-getent passwd otlp-gateway >/dev/null || useradd --system --user-group --no-create-home --shell /sbin/nologin otlp-gateway
+getent passwd otel-grafana >/dev/null || useradd --system --user-group --no-create-home --shell /sbin/nologin otel-grafana
