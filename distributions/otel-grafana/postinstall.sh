@@ -15,6 +15,8 @@
 # limitations under the License.
 
 if command -v systemctl >/dev/null 2>&1; then
-    systemctl stop otlp-gateway.service
-    systemctl disable otlp-gateway.service
+    systemctl enable otel-grafana.service
+    if [ -f /etc/otel-grafana/config.yaml ]; then
+        systemctl start otel-grafana.service
+    fi
 fi

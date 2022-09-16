@@ -48,7 +48,7 @@ builds:
   - -trimpath
   env:
   - CGO_ENABLED=0
-- id: otlp-gateway
+- id: otel-grafana
   goos:
   - darwin
   - linux
@@ -63,8 +63,8 @@ builds:
     goarch: "386"
   - goos: windows
     goarch: arm64
-  dir: distributions/otlp-gateway/_build
-  binary: otlp-gateway
+  dir: distributions/otel-grafana/_build
+  binary: otel-grafana
   ldflags:
   - -s
   - -w
@@ -83,9 +83,9 @@ archives:
   - tracing
   name_template: '{{ .Binary }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{
     .Arm }}{{ end }}{{ if .Mips }}_{{ .Mips }}{{ end }}'
-- id: otlp-gateway
+- id: otel-grafana
   builds:
-  - otlp-gateway
+  - otel-grafana
   name_template: '{{ .Binary }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{
     .Arm }}{{ end }}{{ if .Mips }}_{{ .Mips }}{{ end }}'
 nfpms:
@@ -137,29 +137,29 @@ nfpms:
   maintainer: The OpenTelemetry Team @ Grafana Labs <opentelemetry@grafana.com>
   description: Grafana Lab's tracing distribution of the OpenTelemetry Collector
   license: Apache 2.0
-- package_name: otlp-gateway
+- package_name: otel-grafana
   contents:
-  - src: distributions/otlp-gateway/otlp-gateway.service
-    dst: /lib/systemd/system/otlp-gateway.service
-  - src: distributions/otlp-gateway/otlp-gateway.conf
-    dst: /etc/otlp-gateway/otlp-gateway.conf
+  - src: distributions/otel-grafana/otel-grafana.service
+    dst: /lib/systemd/system/otel-grafana.service
+  - src: distributions/otel-grafana/otel-grafana.conf
+    dst: /etc/otel-grafana/otel-grafana.conf
     type: config|noreplace
-  - src: configs/otlp-gateway.yaml
-    dst: /etc/otlp-gateway/config.yaml
+  - src: configs/otel-grafana.yaml
+    dst: /etc/otel-grafana/config.yaml
     type: config
   scripts:
-    preinstall: distributions/otlp-gateway/preinstall.sh
-    postinstall: distributions/otlp-gateway/postinstall.sh
-    preremove: distributions/otlp-gateway/preremove.sh
-  id: otlp-gateway
+    preinstall: distributions/otel-grafana/preinstall.sh
+    postinstall: distributions/otel-grafana/postinstall.sh
+    preremove: distributions/otel-grafana/preremove.sh
+  id: otel-grafana
   builds:
-  - otlp-gateway
+  - otel-grafana
   formats:
   - apk
   - deb
   - rpm
   maintainer: The OpenTelemetry Team @ Grafana Labs <opentelemetry@grafana.com>
-  description: Grafana Lab's otlp-gateway distribution of the OpenTelemetry Collector
+  description: Grafana Lab's otel-grafana distribution of the OpenTelemetry Collector
   license: Apache 2.0
 checksum:
   name_template: '{{ .ProjectName }}_checksums.txt'
@@ -294,11 +294,11 @@ dockers:
   use: buildx
 - goos: linux
   goarch: "386"
-  dockerfile: distributions/otlp-gateway/Dockerfile
+  dockerfile: distributions/otel-grafana/Dockerfile
   image_templates:
-  - ghcr.io/grafana/opentelemetry-collector-components/otlp-gateway:{{ .Version }}-386
+  - ghcr.io/grafana/opentelemetry-collector-components/otel-grafana:{{ .Version }}-386
   extra_files:
-  - configs/otlp-gateway.yaml
+  - configs/otel-grafana.yaml
   build_flag_templates:
   - --pull
   - --platform=linux/386
@@ -310,11 +310,11 @@ dockers:
   use: buildx
 - goos: linux
   goarch: amd64
-  dockerfile: distributions/otlp-gateway/Dockerfile
+  dockerfile: distributions/otel-grafana/Dockerfile
   image_templates:
-  - ghcr.io/grafana/opentelemetry-collector-components/otlp-gateway:{{ .Version }}-amd64
+  - ghcr.io/grafana/opentelemetry-collector-components/otel-grafana:{{ .Version }}-amd64
   extra_files:
-  - configs/otlp-gateway.yaml
+  - configs/otel-grafana.yaml
   build_flag_templates:
   - --pull
   - --platform=linux/amd64
@@ -326,11 +326,11 @@ dockers:
   use: buildx
 - goos: linux
   goarch: arm64
-  dockerfile: distributions/otlp-gateway/Dockerfile
+  dockerfile: distributions/otel-grafana/Dockerfile
   image_templates:
-  - ghcr.io/grafana/opentelemetry-collector-components/otlp-gateway:{{ .Version }}-arm64
+  - ghcr.io/grafana/opentelemetry-collector-components/otel-grafana:{{ .Version }}-arm64
   extra_files:
-  - configs/otlp-gateway.yaml
+  - configs/otel-grafana.yaml
   build_flag_templates:
   - --pull
   - --platform=linux/arm64
@@ -342,11 +342,11 @@ dockers:
   use: buildx
 - goos: linux
   goarch: ppc64le
-  dockerfile: distributions/otlp-gateway/Dockerfile
+  dockerfile: distributions/otel-grafana/Dockerfile
   image_templates:
-  - ghcr.io/grafana/opentelemetry-collector-components/otlp-gateway:{{ .Version }}-ppc64le
+  - ghcr.io/grafana/opentelemetry-collector-components/otel-grafana:{{ .Version }}-ppc64le
   extra_files:
-  - configs/otlp-gateway.yaml
+  - configs/otel-grafana.yaml
   build_flag_templates:
   - --pull
   - --platform=linux/ppc64le
@@ -371,10 +371,10 @@ docker_manifests:
   - ghcr.io/grafana/opentelemetry-collector-components/tracing:{{ .Version }}-amd64
   - ghcr.io/grafana/opentelemetry-collector-components/tracing:{{ .Version }}-arm64
   - ghcr.io/grafana/opentelemetry-collector-components/tracing:{{ .Version }}-ppc64le
-- name_template: ghcr.io/grafana/opentelemetry-collector-components/otlp-gateway:{{
+- name_template: ghcr.io/grafana/opentelemetry-collector-components/otel-grafana:{{
     .Version }}
   image_templates:
-  - ghcr.io/grafana/opentelemetry-collector-components/otlp-gateway:{{ .Version }}-386
-  - ghcr.io/grafana/opentelemetry-collector-components/otlp-gateway:{{ .Version }}-amd64
-  - ghcr.io/grafana/opentelemetry-collector-components/otlp-gateway:{{ .Version }}-arm64
-  - ghcr.io/grafana/opentelemetry-collector-components/otlp-gateway:{{ .Version }}-ppc64le
+  - ghcr.io/grafana/opentelemetry-collector-components/otel-grafana:{{ .Version }}-386
+  - ghcr.io/grafana/opentelemetry-collector-components/otel-grafana:{{ .Version }}-amd64
+  - ghcr.io/grafana/opentelemetry-collector-components/otel-grafana:{{ .Version }}-arm64
+  - ghcr.io/grafana/opentelemetry-collector-components/otel-grafana:{{ .Version }}-ppc64le
