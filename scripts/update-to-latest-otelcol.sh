@@ -85,6 +85,7 @@ fi
 
 # add only the files we might have changed
 git add $manifests
+git add Makefile
 
 # are there other changes?
 git diff --quiet
