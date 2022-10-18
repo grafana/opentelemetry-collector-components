@@ -4,15 +4,15 @@ dist:
   description: Grafana Lab's tracing distribution of the OpenTelemetry Collector
   version: 0.0.1
   output_path: ./_build
-  otelcol_version: 0.61.0
+  otelcol_version: 0.62.1
 
 extensions:
-  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/healthcheckextension v0.61.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/healthcheckextension v0.62.0
 receivers:
   - import: go.opentelemetry.io/collector/receiver/otlpreceiver
-    gomod: go.opentelemetry.io/collector v0.61.0
-  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/jaegerreceiver v0.61.0
-  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/zipkinreceiver v0.61.0
+    gomod: go.opentelemetry.io/collector v0.62.1
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/jaegerreceiver v0.62.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/zipkinreceiver v0.62.0
 exporters:
   - import: go.opentelemetry.io/collector/exporter/otlpexporter
-    gomod: go.opentelemetry.io/collector v0.61.0
+    gomod: go.opentelemetry.io/collector v0.62.1
