@@ -9,6 +9,6 @@ dist:
 extensions:
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/healthcheckextension v0.69.0
 receivers:
-  - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.69.1
+  - gomod: go.opentelemetry.io/collector v0.69.1
 exporters:
-  - gomod: go.opentelemetry.io/collector/exporter/otlpexporter v0.69.1
+  - gomod: go.opentelemetry.io/collector v0.69.1
