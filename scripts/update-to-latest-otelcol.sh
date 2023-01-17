@@ -30,8 +30,8 @@ if [[ -z $directory ]]; then
 fi
 
 # get the latest tag, without the "v" prefix
-latest_core_version=$(jq -r .tag_name "${directory}/latest-core.json" | sed 's/^v//')
-latest_contrib_version=$(jq -r .tag_name "${directory}/latest-contrib.json" | sed 's/^v//')
+latest_core_version=$(jq -r .tag_name "${directory}/latest-core.json" | awk -F\/ '{print $NF}' | sed 's/^v//')
+latest_contrib_version=$(jq -r .tag_name "${directory}/latest-contrib.json" | awk -F\/ '{print $NF}' | sed 's/^v//')
 
 # in theory, we could have independent pull requests for each version bump, 
 # but it's better to have the versions in sync at all times to prevent build failures
