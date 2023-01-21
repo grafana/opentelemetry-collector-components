@@ -67,7 +67,7 @@ for manifest in $manifests; do
     sed -i "s~otelcol_version.*~otelcol_version: ${latest_core_version}~" $manifest
 
     # now, the collector gomod:
-    sed -i "s~gomod: go\.opentelemetry\.io/collector.*~gomod: go.opentelemetry.io/collector v${latest_core_version}~" $manifest
+    sed -i "s~gomod: \(go\.opentelemetry\.io/collector.*\s\).*\$~gomod: \1v${latest_core_version}~" $manifest
 
     # and the contrib versions:
     # this captures a group with the "- gomod: component-path" content, and use it plus the version to compose the line 
