@@ -37,8 +37,8 @@ latest_contrib_version=$(jq -r .tag_name "${directory}/latest-contrib.json" | aw
 # but it's better to have the versions in sync at all times to prevent build failures
 if [ $latest_core_version != $latest_contrib_version ]; then
     echo "The contrib and core versions aren't matching. This might be OK, but perhaps there's a release in process?"
-    core_date=$(date -d $(jq -r .published_at latest-core.json) +%s)
-    contrib_date=$(date -d $(jq -r .published_at latest-contrib.json) +%s)
+    core_date=$(date -d $(jq -r .published_at "${directory}/latest-core.json") +%s)
+    contrib_date=$(date -d $(jq -r .published_at "${directory}/latest-contrib.json") +%s)
 
     # the idea now is the following: if we just detected a new release of the core but not contrib yet,
     # then the release process might still be happening. Let's give it, say, 6 hours to complete.
