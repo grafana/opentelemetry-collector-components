@@ -11,11 +11,11 @@ extensions:
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/basicauthextension v0.70.0
 receivers:
   - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.70.0
+processors:
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/routingprocessor v0.70.0
+  - gomod: github.com/grafana/opentelemetry-collector-components/processor/gcomapiprocessor v0.0.0
 exporters:
   - gomod: go.opentelemetry.io/collector/exporter/otlpexporter v0.70.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/exporter/lokiexporter v0.70.0
-
-excludes:
-  - cloud.google.com/go v0.65.0
-  - cloud.google.com/go v0.34.0
-  - cloud.google.com/go v0.26.0
+replaces:
+  - github.com/grafana/opentelemetry-collector-components/processor/gcomapiprocessor => ../../../components/processor/gcomapiprocessor/
