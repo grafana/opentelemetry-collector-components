@@ -1,13 +1,14 @@
 name: Release
 
 on:
+  workflow_dispatch:
   push:
-    tags: ["v*"]
     branches: [main]
 
 jobs:
   release:
     name: Release
+    environment: release
     runs-on: ubuntu-20.04
 
     steps:
@@ -43,6 +44,7 @@ jobs:
         uses: goreleaser/goreleaser-action@v3
         with:
           version: latest
-          args: release --rm-dist --timeout 2h
+          args: release --clean --timeout 2h --nightly
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GORELEASER_KEY: ${{ secrets.GORELEASER_KEY }}
