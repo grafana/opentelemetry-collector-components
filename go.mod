@@ -1,6 +1,6 @@
 module github.com/grafana/opentelemetry-collector-components
 
-go 1.18
+go 1.19
 
 require (
 	github.com/goreleaser/goreleaser v1.11.2
