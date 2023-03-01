@@ -11,6 +11,7 @@ extensions:
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/basicauthextension v0.72.0
 receivers:
   - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.72.0
+  - gomod: github.com/grafana/opentelemetry-collector-components/receiver/faroreceiver v0.0.0
 processors:
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/routingprocessor v0.72.0
   - gomod: github.com/grafana/opentelemetry-collector-components/processor/gcomapiprocessor v0.0.0
@@ -19,4 +20,6 @@ exporters:
   - gomod: go.opentelemetry.io/collector/exporter/otlphttpexporter v0.72.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/exporter/lokiexporter v0.72.0
 replaces:
+  - github.com/grafana/opentelemetry-collector-components => ../../..
   - github.com/grafana/opentelemetry-collector-components/processor/gcomapiprocessor => ../../../components/processor/gcomapiprocessor/
+  - github.com/grafana/opentelemetry-collector-components/receiver/faroreceiver => ../../../components/receiver/faroreceiver/
