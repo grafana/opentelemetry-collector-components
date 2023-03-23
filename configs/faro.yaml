@@ -1,0 +1,36 @@
+extensions:
+  health_check:
+  faroauth:
+    faro_api:
+      endpoint: localhost:9095
+
+receivers:
+  faro:
+    http:
+      endpoint: 127.0.0.1:8886
+      auth:
+        authenticator: faroauth
+
+processors:
+
+exporters:
+  logging:
+
+service:
+  telemetry:
+    logs:
+      level: debug
+    metrics:
+      level: detailed
+  pipelines:
+    traces:
+      receivers: [faro]
+      processors: []
+      exporters: [logging]
+
+    logs:
+      receivers: [faro]
+      processors: []
+      exporters: [logging]
+
+  extensions: [health_check, faroauth]

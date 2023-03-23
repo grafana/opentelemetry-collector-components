@@ -1,0 +1,35 @@
+extensions:
+  health_check:
+
+receivers:
+  faro:
+    http:
+      endpoint: 127.0.0.1:8886
+      cors:
+        allowed_origins: ["http://grafana-dev.com"]
+
+processors:
+
+exporters:
+  logging:
+  otlphttp:
+    endpoint: http://127.0.0.1:4318
+
+service:
+  telemetry:
+    logs:
+      level: debug
+    metrics:
+      level: detailed
+  pipelines:
+    traces:
+      receivers: [faro]
+      processors: []
+      exporters: [logging, otlphttp]
+
+    logs:
+      receivers: [faro]
+      processors: []
+      exporters: [logging, otlphttp]
+
+  extensions: [health_check]

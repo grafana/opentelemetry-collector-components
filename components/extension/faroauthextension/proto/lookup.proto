@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+option go_package = "github.com/grafana/opentelemetry-collector-components/comopnents/extension/faroauthextension/lookup";
+
+package lookup;
+
+// Faro App Lookup gRPC Service
+service AppLookup {
+  rpc Lookup(LookupRequest) returns (LookupResponse) {}
+}
+
+message LookupRequest {
+  string app_key = 1;
+}
+
+message LookupResponse {
+  message ExtraLogLabel {
+    string label = 1;
+    string value = 2;
+  }
+  message CORSAllowedOrigin {
+    string origin = 1;
+  }
+  string name = 1;
+  repeated ExtraLogLabel extraLogLabels = 2;
+  repeated CORSAllowedOrigin corsOrigins = 3;
+  string stackID = 4;
+}
