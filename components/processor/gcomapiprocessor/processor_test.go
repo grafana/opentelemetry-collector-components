@@ -3,7 +3,6 @@ package gcomapiprocessor
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"strconv"
 	"testing"
 
@@ -37,18 +36,6 @@ func TestProcessor_EnrichContextWithSignalInstanceURL(t *testing.T) {
 				return collectorclient.NewContext(context.Background(), collectorclient.Info{
 					Metadata: collectorclient.NewMetadata(
 						map[string][]string{orgID: {strconv.Itoa(gcom.GrafanaInstanceOne.ID)}},
-					),
-				})
-			},
-			want: gcom.GrafanaInstanceOne.TracesInstanceURL,
-		},
-		{
-			name: "canonical id header",
-			context: func() context.Context {
-				canonicalOrgID := http.CanonicalHeaderKey(orgID)
-				return collectorclient.NewContext(context.Background(), collectorclient.Info{
-					Metadata: collectorclient.NewMetadata(
-						map[string][]string{canonicalOrgID: {strconv.Itoa(gcom.GrafanaInstanceOne.ID)}},
 					),
 				})
 			},

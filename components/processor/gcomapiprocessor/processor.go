@@ -3,7 +3,6 @@ package gcomapiprocessor
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"strconv"
 
 	collectorclient "go.opentelemetry.io/collector/client"
@@ -82,8 +81,7 @@ func (p *grafanaAPIProcessor) enrichContextWithSignalInstanceURL(
 
 	// Extract X-Scope-OrgID
 	info := collectorclient.FromContext(ctx)
-	key := http.CanonicalHeaderKey(orgID)
-	v := info.Metadata.Get(key)
+	v := info.Metadata.Get(orgID)
 
 	if v == nil || len(v) == 0 {
 		return nil, fmt.Errorf("missing %q header", orgID)
