@@ -36,7 +36,7 @@ func TestProcessor_EnrichContextWithSignalInstanceURL(t *testing.T) {
 			context: func() context.Context {
 				return collectorclient.NewContext(context.Background(), collectorclient.Info{
 					Metadata: collectorclient.NewMetadata(
-						map[string][]string{orgID: {strconv.Itoa(gcom.GrafanaInstanceOne.ID)}},
+						map[string][]string{headerOrgID: {strconv.Itoa(gcom.GrafanaInstanceOne.ID)}},
 					),
 				})
 			},
@@ -45,7 +45,7 @@ func TestProcessor_EnrichContextWithSignalInstanceURL(t *testing.T) {
 		{
 			name: "canonical id header",
 			context: func() context.Context {
-				canonicalOrgID := http.CanonicalHeaderKey(orgID)
+				canonicalOrgID := http.CanonicalHeaderKey(headerOrgID)
 				return collectorclient.NewContext(context.Background(), collectorclient.Info{
 					Metadata: collectorclient.NewMetadata(
 						map[string][]string{canonicalOrgID: {strconv.Itoa(gcom.GrafanaInstanceOne.ID)}},
@@ -70,7 +70,7 @@ func TestProcessor_EnrichContextWithSignalInstanceURL(t *testing.T) {
 			context: func() context.Context {
 				return collectorclient.NewContext(context.Background(), collectorclient.Info{
 					Metadata: collectorclient.NewMetadata(
-						map[string][]string{orgID: {""}},
+						map[string][]string{headerOrgID: {""}},
 					),
 				})
 			},
@@ -81,7 +81,7 @@ func TestProcessor_EnrichContextWithSignalInstanceURL(t *testing.T) {
 			context: func() context.Context {
 				return collectorclient.NewContext(context.Background(), collectorclient.Info{
 					Metadata: collectorclient.NewMetadata(
-						map[string][]string{orgID: {"1a"}},
+						map[string][]string{headerOrgID: {"1a"}},
 					),
 				})
 			},
@@ -93,7 +93,7 @@ func TestProcessor_EnrichContextWithSignalInstanceURL(t *testing.T) {
 				return collectorclient.NewContext(context.Background(), collectorclient.Info{
 					Metadata: collectorclient.NewMetadata(
 						map[string][]string{
-							orgID: {strconv.Itoa(gcom.GrafanaInstanceOne.ID), "test"}},
+							headerOrgID: {strconv.Itoa(gcom.GrafanaInstanceOne.ID), "test"}},
 					),
 				})
 			},
@@ -123,4 +123,17 @@ func TestProcessor_EnrichContextWithSignalInstanceURL(t *testing.T) {
 			assert.Equal(t, tt.want, got[0])
 		})
 	}
+}
+
+func TestRetrieveOrgIdFromContext(t *testing.T) {
+	md := collectorclient.NewMetadata(map[string][]string{
+		"X-Scope-Orgid": {"123"},
+	})
+	info := collectorclient.Info{
+		Metadata: md,
+	}
+	ctx := collectorclient.NewContext(context.Background(), info)
+	orgID, err := retrieveOrgIdFromContext(ctx)
+	assert.NoError(t, err)
+	assert.Equal(t, "123", orgID)
 }

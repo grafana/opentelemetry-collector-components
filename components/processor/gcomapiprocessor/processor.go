@@ -3,7 +3,6 @@ package gcomapiprocessor
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"strconv"
 
 	collectorclient "go.opentelemetry.io/collector/client"
@@ -19,7 +18,7 @@ import (
 )
 
 const (
-	orgID       = "X-Scope-OrgID"
+	headerOrgID = "X-Scope-OrgID"
 	instanceURL = "X-Scope-InstanceURL"
 )
 
@@ -41,7 +40,7 @@ func newAPIProcessor(cfg *Config, settings component.TelemetrySettings) (*grafan
 	cl, err := client.New(
 		client.Config{
 			Endpoint: cfg.Client.Endpoint,
-			Key:      cfg.Client.Endpoint,
+			Key:      cfg.Client.Key,
 			Timeout:  cfg.Client.Timeout,
 		},
 		cfg.ServiceName,
@@ -64,6 +63,9 @@ func newAPIProcessor(cfg *Config, settings component.TelemetrySettings) (*grafan
 		[]client.InstanceType{client.Grafana},
 		cl,
 	)
+	if err != nil {
+		return nil, err
+	}
 
 	return &grafanaAPIProcessor{
 		cache:  ic,
@@ -80,21 +82,14 @@ func (p *grafanaAPIProcessor) enrichContextWithSignalInstanceURL(
 	extractURL func(i client.Instance) string,
 ) (context.Context, error) {
 
-	// Extract X-Scope-OrgID
-	info := collectorclient.FromContext(ctx)
-	key := http.CanonicalHeaderKey(orgID)
-	v := info.Metadata.Get(key)
-
-	if v == nil || len(v) == 0 {
-		return nil, fmt.Errorf("missing %q header", orgID)
-	}
-
-	if len(v) > 1 {
-		return nil, fmt.Errorf("%d source keys found in the context, can't determine which one to use", len(v))
-	}
-	stackID, err := strconv.Atoi(v[0])
+	orgID, err := retrieveOrgIdFromContext(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("invalid %q header: %s", orgID, v[0])
+		return nil, err
+	}
+
+	stackID, err := strconv.Atoi(orgID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid %q header: %s", headerOrgID, orgID)
 	}
 
 	// Get Grafana instance by ID. X-Scope-OrgId here contains StackID, not the
@@ -112,6 +107,22 @@ func (p *grafanaAPIProcessor) enrichContextWithSignalInstanceURL(
 		md.Set(instanceURL, extractURL(instance))
 	}
 	return metadata.NewIncomingContext(ctx, md), nil
+}
+
+func retrieveOrgIdFromContext(ctx context.Context) (string, error) {
+	// Extract X-Scope-OrgID
+	info := collectorclient.FromContext(ctx)
+	v := info.Metadata.Get(headerOrgID)
+
+	if len(v) == 0 {
+		return "", fmt.Errorf("missing %q header, is include_metadata enabled?", headerOrgID)
+	}
+
+	if len(v) > 1 {
+		return "", fmt.Errorf("%d source keys found in the context, can't determine which one to use", len(v))
+	}
+
+	return v[0], nil
 }
 
 func (p *grafanaAPIProcessor) Capabilities() consumer.Capabilities {
