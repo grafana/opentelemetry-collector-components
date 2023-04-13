@@ -40,7 +40,7 @@ func newAPIProcessor(cfg *Config, settings component.TelemetrySettings) (*grafan
 	cl, err := client.New(
 		client.Config{
 			Endpoint: cfg.Client.Endpoint,
-			Key:      cfg.Client.Endpoint,
+			Key:      cfg.Client.Key,
 			Timeout:  cfg.Client.Timeout,
 		},
 		cfg.ServiceName,
