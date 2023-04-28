@@ -8,6 +8,8 @@ import (
 	collectorclient "go.opentelemetry.io/collector/client"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/consumer"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric/instrument"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/metadata"
 
@@ -20,6 +22,9 @@ import (
 const (
 	headerOrgID = "X-Scope-OrgID"
 	instanceURL = "X-Scope-InstanceURL"
+
+	instrumentScopeName = "github.com/grafana/opentelemetry-collector-components/components/gcomapiprocessor"
+	nameSep             = "/"
 )
 
 type grafanaAPIProcessor struct {
@@ -32,9 +37,13 @@ type grafanaAPIProcessor struct {
 
 	component.StartFunc
 	component.ShutdownFunc
+
+	reqsCounter instrument.Int64Counter
+
+	signal signal
 }
 
-func newAPIProcessor(cfg *Config, settings component.TelemetrySettings) (*grafanaAPIProcessor, error) {
+func newAPIProcessor(cfg *Config, settings component.TelemetrySettings, s signal) (*grafanaAPIProcessor, error) {
 	logger := internal.NewZapToGokitLogAdapter(settings.Logger)
 
 	cl, err := client.New(
@@ -67,9 +76,20 @@ func newAPIProcessor(cfg *Config, settings component.TelemetrySettings) (*grafan
 		return nil, err
 	}
 
+	meter := settings.MeterProvider.Meter(instrumentScopeName + nameSep + string(s))
+	reqsCounter, err := meter.Int64Counter(
+		fmt.Sprintf("otlp_gateway_gcom_api_%s_requests_total", s),
+		instrument.WithDescription(fmt.Sprintf("The number of authenticated %s requests.", s)),
+	)
+	if err != nil {
+		return nil, err
+	}
+
 	return &grafanaAPIProcessor{
-		cache:  ic,
-		logger: settings.Logger,
+		cache:       ic,
+		logger:      settings.Logger,
+		signal:      s,
+		reqsCounter: reqsCounter,
 	}, nil
 
 }
@@ -77,11 +97,7 @@ func newAPIProcessor(cfg *Config, settings component.TelemetrySettings) (*grafan
 // enrichContextWithSignalInstanceURL resolves signal instance URL from StackID that
 // is set via `X-Scope-OrgID` header, and wraps the incoming context in a new
 // context that has the signal instance URL in `X-Scope-InstanceURL` metadata field.
-func (p *grafanaAPIProcessor) enrichContextWithSignalInstanceURL(
-	ctx context.Context,
-	extractURL func(i client.Instance) string,
-) (context.Context, error) {
-
+func (p *grafanaAPIProcessor) enrichContextWithSignalInstanceURL(ctx context.Context) (context.Context, error) {
 	orgID, err := retrieveOrgIdFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -99,12 +115,21 @@ func (p *grafanaAPIProcessor) enrichContextWithSignalInstanceURL(
 		return nil, fmt.Errorf("failure looking up by stack id: '%d', %s", stackID, err.Error())
 	}
 
+	tenant, clusterURL := extractTenantIDAndURL(p.signal, instance)
+	p.reqsCounter.Add(
+		ctx,
+		1,
+		attribute.Int("org_id", instance.OrgID),
+		attribute.String("tenant_id", strconv.Itoa(tenant)),
+		attribute.String("cluster_url", clusterURL),
+	)
+
 	// Set X-Scope-InstanceURL
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		md = map[string][]string{instanceURL: {extractURL(instance)}}
+		md = map[string][]string{instanceURL: {clusterURL}}
 	} else {
-		md.Set(instanceURL, extractURL(instance))
+		md.Set(instanceURL, clusterURL)
 	}
 	return metadata.NewIncomingContext(ctx, md), nil
 }
@@ -127,4 +152,17 @@ func retrieveOrgIdFromContext(ctx context.Context) (string, error) {
 
 func (p *grafanaAPIProcessor) Capabilities() consumer.Capabilities {
 	return consumer.Capabilities{MutatesData: false}
+}
+
+func extractTenantIDAndURL(s signal, i client.Instance) (int, string) {
+	switch s {
+	case traces:
+		return i.TracesInstanceID, i.TracesInstanceURL
+	case metrics:
+		return i.PromInstanceID, i.PromInstanceURL
+	case logs:
+		return i.LogsInstanceID, i.LogsInstanceURL
+	}
+	// should not happen
+	return 0, ""
 }
