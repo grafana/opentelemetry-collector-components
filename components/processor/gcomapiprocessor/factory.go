@@ -10,13 +10,17 @@ import (
 	"go.opentelemetry.io/collector/pdata/pmetric"
 	"go.opentelemetry.io/collector/pdata/ptrace"
 	"go.opentelemetry.io/collector/processor"
-
-	"github.com/grafana/opentelemetry-collector-components/processor/gcomapiprocessor/internal/gcom/client"
 )
+
+type signal string
 
 const (
 	typeStr   = "gcomapi"
 	stability = component.StabilityLevelAlpha
+
+	metrics signal = "metrics"
+	traces         = "traces"
+	logs           = "logs"
 )
 
 func NewFactory() processor.Factory {
@@ -49,15 +53,12 @@ func createLogsProcessor(
 	cfg component.Config,
 	nextConsumer consumer.Logs,
 ) (processor.Logs, error) {
-	proc, err := newAPIProcessor(cfg.(*Config), set.TelemetrySettings)
+	proc, err := newAPIProcessor(cfg.(*Config), set.TelemetrySettings, logs)
 	if err != nil {
 		return nil, err
 	}
 	proc.Logs, err = consumer.NewLogs(func(ctx context.Context, td plog.Logs) error {
-		newCtx, err := proc.enrichContextWithSignalInstanceURL(
-			ctx,
-			func(i client.Instance) string { return i.LogsInstanceURL },
-		)
+		newCtx, err := proc.enrichContextWithSignalInstanceURL(ctx)
 		if err != nil {
 			return err
 		}
@@ -76,15 +77,12 @@ func createTracesProcessor(
 	cfg component.Config,
 	nextConsumer consumer.Traces,
 ) (processor.Traces, error) {
-	proc, err := newAPIProcessor(cfg.(*Config), set.TelemetrySettings)
+	proc, err := newAPIProcessor(cfg.(*Config), set.TelemetrySettings, traces)
 	if err != nil {
 		return nil, err
 	}
 	proc.Traces, err = consumer.NewTraces(func(ctx context.Context, td ptrace.Traces) error {
-		newCtx, err := proc.enrichContextWithSignalInstanceURL(
-			ctx,
-			func(i client.Instance) string { return i.TracesInstanceURL },
-		)
+		newCtx, err := proc.enrichContextWithSignalInstanceURL(ctx)
 		if err != nil {
 			return err
 		}
@@ -103,16 +101,13 @@ func createMetricsProcessor(
 	cfg component.Config,
 	nextConsumer consumer.Metrics,
 ) (processor.Metrics, error) {
-	proc, err := newAPIProcessor(cfg.(*Config), set.TelemetrySettings)
+	proc, err := newAPIProcessor(cfg.(*Config), set.TelemetrySettings, metrics)
 	if err != nil {
 		return nil, err
 	}
 
 	proc.Metrics, err = consumer.NewMetrics(func(ctx context.Context, md pmetric.Metrics) error {
-		newCtx, err := proc.enrichContextWithSignalInstanceURL(
-			ctx,
-			func(i client.Instance) string { return i.PromInstanceURL },
-		)
+		newCtx, err := proc.enrichContextWithSignalInstanceURL(ctx)
 		if err != nil {
 			return err
 		}

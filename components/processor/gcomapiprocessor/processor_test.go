@@ -8,13 +8,14 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	collectorclient "go.opentelemetry.io/collector/client"
 	"go.opentelemetry.io/collector/component"
+	"go.opentelemetry.io/otel/metric"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/metadata"
 
 	"github.com/grafana/opentelemetry-collector-components/processor/gcomapiprocessor/internal/gcom"
-	"github.com/grafana/opentelemetry-collector-components/processor/gcomapiprocessor/internal/gcom/client"
 )
 
 func TestProcessor_EnrichContextWithSignalInstanceURL(t *testing.T) {
@@ -22,17 +23,17 @@ func TestProcessor_EnrichContextWithSignalInstanceURL(t *testing.T) {
 
 	cfg := createDefaultConfig().(*Config)
 	cfg.Client.Endpoint = "mock://fake.com"
-	p, err := newAPIProcessor(cfg, component.TelemetrySettings{Logger: zap.NewNop()})
-	assert.NoError(t, err)
 
 	tests := []struct {
 		name    string
+		signal  signal
 		context func() context.Context
 		want    string
 		error   string
 	}{
 		{
-			name: "traces instance url is set",
+			name:   "traces instance url is set",
+			signal: traces,
 			context: func() context.Context {
 				return collectorclient.NewContext(context.Background(), collectorclient.Info{
 					Metadata: collectorclient.NewMetadata(
@@ -43,7 +44,33 @@ func TestProcessor_EnrichContextWithSignalInstanceURL(t *testing.T) {
 			want: gcom.GrafanaInstanceOne.TracesInstanceURL,
 		},
 		{
-			name: "canonical id header",
+			name:   "logs instance url is set",
+			signal: logs,
+			context: func() context.Context {
+				return collectorclient.NewContext(context.Background(), collectorclient.Info{
+					Metadata: collectorclient.NewMetadata(
+						map[string][]string{headerOrgID: {strconv.Itoa(gcom.GrafanaInstanceOne.ID)}},
+					),
+				})
+			},
+			want: gcom.GrafanaInstanceOne.LogsInstanceURL,
+		},
+		{
+			name:   "metrics instance url is set",
+			signal: metrics,
+			context: func() context.Context {
+				return collectorclient.NewContext(context.Background(), collectorclient.Info{
+					Metadata: collectorclient.NewMetadata(
+						map[string][]string{headerOrgID: {strconv.Itoa(gcom.GrafanaInstanceOne.ID)}},
+					),
+				})
+			},
+			want: gcom.GrafanaInstanceOne.PromInstanceURL,
+		},
+
+		{
+			name:   "canonical id header",
+			signal: traces,
 			context: func() context.Context {
 				canonicalOrgID := http.CanonicalHeaderKey(headerOrgID)
 				return collectorclient.NewContext(context.Background(), collectorclient.Info{
@@ -55,7 +82,8 @@ func TestProcessor_EnrichContextWithSignalInstanceURL(t *testing.T) {
 			want: gcom.GrafanaInstanceOne.TracesInstanceURL,
 		},
 		{
-			name: "missing org id header",
+			name:   "missing org id header",
+			signal: traces,
 			context: func() context.Context {
 				return collectorclient.NewContext(context.Background(), collectorclient.Info{
 					Metadata: collectorclient.NewMetadata(
@@ -66,7 +94,8 @@ func TestProcessor_EnrichContextWithSignalInstanceURL(t *testing.T) {
 			error: "missing \"X-Scope-OrgID\" header",
 		},
 		{
-			name: "empty org id header",
+			name:   "empty org id header",
+			signal: traces,
 			context: func() context.Context {
 				return collectorclient.NewContext(context.Background(), collectorclient.Info{
 					Metadata: collectorclient.NewMetadata(
@@ -77,7 +106,8 @@ func TestProcessor_EnrichContextWithSignalInstanceURL(t *testing.T) {
 			error: "invalid \"X-Scope-OrgID\" header: ",
 		},
 		{
-			name: "invalid org id header",
+			name:   "invalid org id header",
+			signal: traces,
 			context: func() context.Context {
 				return collectorclient.NewContext(context.Background(), collectorclient.Info{
 					Metadata: collectorclient.NewMetadata(
@@ -88,7 +118,8 @@ func TestProcessor_EnrichContextWithSignalInstanceURL(t *testing.T) {
 			error: "invalid \"X-Scope-OrgID\" header: 1a",
 		},
 		{
-			name: "org id header has more than one value ",
+			name:   "org id header has more than one value ",
+			signal: traces,
 			context: func() context.Context {
 				return collectorclient.NewContext(context.Background(), collectorclient.Info{
 					Metadata: collectorclient.NewMetadata(
@@ -103,12 +134,17 @@ func TestProcessor_EnrichContextWithSignalInstanceURL(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctx, err := p.enrichContextWithSignalInstanceURL(
-				tt.context(),
-				func(i client.Instance) string {
-					return i.TracesInstanceURL
+			p, err := newAPIProcessor(
+				cfg,
+				component.TelemetrySettings{
+					Logger:        zap.NewNop(),
+					MeterProvider: metric.NewNoopMeterProvider(),
 				},
+				tt.signal,
 			)
+			require.NoError(t, err)
+
+			ctx, err := p.enrichContextWithSignalInstanceURL(tt.context())
 			if tt.error != "" {
 				assert.ErrorContains(t, err, tt.error)
 				return
