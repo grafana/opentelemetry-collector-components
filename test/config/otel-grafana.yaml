@@ -13,9 +13,6 @@ exporters:
     endpoint: example.com:4317 # this will fail to connect, but it shouldn't break the process
   loki:
     endpoint: loki.example.com:4317
-    labels:
-      attributes:
-        pod_name:
 
 service:
   extensions: [health_check]
