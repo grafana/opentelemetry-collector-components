@@ -84,6 +84,7 @@ for gomod in $gomods; do
     pushd "$(dirname $gomod)"
     sed -i "s~\(go\.opentelemetry\.io/collector.*\s\).*\$~\1v${latest_core_version}~" $gomod
     sed -i "s~\(.*github.com/open-telemetry/opentelemetry-collector-contrib/.*\s\).*~\1v${latest_contrib_version}~" $gomod
+    go mod tidy
     popd
 done
 
