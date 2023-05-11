@@ -9,7 +9,7 @@ import (
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/consumer"
 	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/metric/instrument"
+	"go.opentelemetry.io/otel/metric"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/metadata"
 
@@ -38,7 +38,7 @@ type grafanaAPIProcessor struct {
 	component.StartFunc
 	component.ShutdownFunc
 
-	reqsCounter instrument.Int64Counter
+	reqsCounter metric.Int64Counter
 
 	signal signal
 }
@@ -79,7 +79,7 @@ func newAPIProcessor(cfg *Config, settings component.TelemetrySettings, s signal
 	meter := settings.MeterProvider.Meter(instrumentScopeName + nameSep + string(s))
 	reqsCounter, err := meter.Int64Counter(
 		fmt.Sprintf("otlp_gateway_gcom_api_%s_requests_total", s),
-		instrument.WithDescription(fmt.Sprintf("The number of authenticated %s requests.", s)),
+		metric.WithDescription(fmt.Sprintf("The number of authenticated %s requests.", s)),
 	)
 	if err != nil {
 		return nil, err
@@ -116,13 +116,12 @@ func (p *grafanaAPIProcessor) enrichContextWithSignalInstanceURL(ctx context.Con
 	}
 
 	tenant, clusterURL := extractTenantIDAndURL(p.signal, instance)
-	p.reqsCounter.Add(
-		ctx,
-		1,
+	opt := metric.WithAttributes(
 		attribute.Int("org_id", instance.OrgID),
 		attribute.String("tenant_id", strconv.Itoa(tenant)),
 		attribute.String("cluster_url", clusterURL),
 	)
+	p.reqsCounter.Add(ctx, 1, opt)
 
 	// Set X-Scope-InstanceURL
 	md, ok := metadata.FromIncomingContext(ctx)

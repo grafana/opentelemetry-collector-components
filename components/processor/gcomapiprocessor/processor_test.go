@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 	collectorclient "go.opentelemetry.io/collector/client"
 	"go.opentelemetry.io/collector/component"
-	"go.opentelemetry.io/otel/metric"
+	"go.opentelemetry.io/otel/metric/noop"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/metadata"
 
@@ -138,7 +138,7 @@ func TestProcessor_EnrichContextWithSignalInstanceURL(t *testing.T) {
 				cfg,
 				component.TelemetrySettings{
 					Logger:        zap.NewNop(),
-					MeterProvider: metric.NewNoopMeterProvider(),
+					MeterProvider: noop.NewMeterProvider(),
 				},
 				tt.signal,
 			)
