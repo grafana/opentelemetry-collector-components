@@ -1,6 +1,7 @@
 #!/bin/bash
 
 REPO_DIR="$( cd "$(dirname $( dirname "${BASH_SOURCE[0]}" ))" &> /dev/null && pwd )"
+COMPONENTS_DIR="${REPO_DIR}/components"
 
 command -v gh 2>/dev/null
 if [ $? != 0 ]; then
@@ -77,6 +78,16 @@ done
 # Update the Makefile
 sed -i "s/^OTELCOL_BUILDER_VERSION.*/OTELCOL_BUILDER_VERSION ?= ${latest_core_version}/" Makefile
 
+# Update the go.mod files
+gomods=$(find ${COMPONENTS_DIR} -name go.mod)
+for gomod in $gomods; do
+    pushd "$(dirname $gomod)"
+    sed -i "s~\(go\.opentelemetry\.io/collector.*\s\).*\$~\1v${latest_core_version}~" $gomod
+    sed -i "s~\(.*github.com/open-telemetry/opentelemetry-collector-contrib/.*\s\).*~\1v${latest_contrib_version}~" $gomod
+    go mod tidy
+    popd
+done
+
 git diff --quiet $manifests
 if [[ $? == 0 ]]; then
     echo "We are already at the latest versions."
@@ -86,6 +97,7 @@ fi
 # add only the files we might have changed
 git add $manifests
 git add Makefile
+git add $gomods
 
 # are there other changes?
 git diff --quiet
