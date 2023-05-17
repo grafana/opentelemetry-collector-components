@@ -7,16 +7,17 @@ dist:
   otelcol_version: 0.77.0
 
 extensions:
-  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/healthcheckextension v0.77.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/basicauthextension v0.77.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/headerssetterextension v0.77.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/healthcheckextension v0.77.0
 receivers:
   - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.77.0
 processors:
-  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/routingprocessor v0.77.0
   - gomod: github.com/grafana/opentelemetry-collector-components/processor/gcomapiprocessor v0.0.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/routingprocessor v0.77.0
 exporters:
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/exporter/lokiexporter v0.77.0
   - gomod: go.opentelemetry.io/collector/exporter/otlpexporter v0.77.0
   - gomod: go.opentelemetry.io/collector/exporter/otlphttpexporter v0.77.0
-  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/exporter/lokiexporter v0.77.0
 replaces:
   - github.com/grafana/opentelemetry-collector-components/processor/gcomapiprocessor => ../../../components/processor/gcomapiprocessor/
