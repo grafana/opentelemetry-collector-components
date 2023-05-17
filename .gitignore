@@ -3,3 +3,4 @@ test/logs
 *.pid
 .vscode
 dist
+go.work.sum
