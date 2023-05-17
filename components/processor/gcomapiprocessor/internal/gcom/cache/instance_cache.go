@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
+
 	"github.com/grafana/opentelemetry-collector-components/processor/gcomapiprocessor/internal/gcom/client"
 )
 
@@ -103,12 +104,7 @@ func NewInstanceCache(
 ) (InstanceCache, error) {
 
 	if len(instanceTypes) == 0 {
-		// TODO (@chroberts): replace this with an error after we roll out
-		// https://github.com/grafana/backend-enterprise/pull/3749
-		instanceTypes = []client.InstanceType{
-			client.Alerts,
-			client.Grafana,
-		}
+		return nil, fmt.Errorf("configure at least 1 instance cache type")
 	}
 
 	i := &instanceCache{

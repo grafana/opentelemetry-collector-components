@@ -17,6 +17,7 @@ type Client struct {
 	Keys      map[string]*client.APIKey
 	Instances map[client.InstanceType][]client.Instance
 	Orgs      []client.Org
+	Clusters  []client.Cluster
 }
 
 func (m *Client) AddInstance(instanceType client.InstanceType, i client.Instance) {
@@ -107,4 +108,27 @@ func (m *Client) ListOrgs(ctx context.Context, options *client.OrgRequestOptions
 	}
 
 	return foundOrgs, nil
+}
+
+// ListClusters returns the configured clusters subject to filter options.
+func (m *Client) ListClusters(ctx context.Context, options client.ClusterRequestOptions) ([]client.Cluster, error) {
+	m.mtx.Lock()
+	defer m.mtx.Unlock()
+
+	match := func(cluster client.Cluster) bool {
+		for _, slug := range options.Slugs {
+			if cluster.Slug == slug {
+				return true
+			}
+		}
+		return false
+	}
+
+	result := []client.Cluster{}
+	for _, cluster := range m.Clusters {
+		if match(cluster) {
+			result = append(result, cluster)
+		}
+	}
+	return result, nil
 }

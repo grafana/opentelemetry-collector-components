@@ -11,9 +11,10 @@ import (
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
-	"github.com/grafana/opentelemetry-collector-components/processor/gcomapiprocessor/internal/gcom/common"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
+
+	"github.com/grafana/opentelemetry-collector-components/processor/gcomapiprocessor/internal/gcom/common"
 )
 
 var (
@@ -65,6 +66,9 @@ type Client interface {
 
 	// ListOrgs returns a list of Grafana Cloud organizations from API.
 	ListOrgs(ctx context.Context, options *OrgRequestOptions) ([]Org, error)
+
+	// ListClusters returns a list of clusters.
+	ListClusters(ctx context.Context, options ClusterRequestOptions) ([]Cluster, error)
 }
 
 type client struct {
