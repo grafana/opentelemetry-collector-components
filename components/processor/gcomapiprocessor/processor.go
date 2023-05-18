@@ -123,12 +123,16 @@ func (p *grafanaAPIProcessor) enrichContextWithSignalInstanceURL(ctx context.Con
 	)
 	p.reqsCounter.Add(ctx, 1, opt)
 
-	// Set X-Scope-InstanceURL
+	// Set X-Scope-InstanceURL and X-Scope-OrgID into the outgoing context
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		md = map[string][]string{instanceURL: {clusterURL}}
+		md = map[string][]string{
+			instanceURL: {clusterURL},
+			headerOrgID: {orgID},
+		}
 	} else {
 		md.Set(instanceURL, clusterURL)
+		md.Set(headerOrgID, orgID)
 	}
 	return metadata.NewIncomingContext(ctx, md), nil
 }
