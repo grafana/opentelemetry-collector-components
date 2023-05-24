@@ -85,6 +85,7 @@ for gomod in $gomods; do
     sed -i "s~\(go\.opentelemetry\.io/collector.*\s\).*\$~\1v${latest_core_version}~" $gomod
     sed -i "s~\(.*github.com/open-telemetry/opentelemetry-collector-contrib/.*\s\).*~\1v${latest_contrib_version}~" $gomod
     go mod tidy
+    git add go.mod go.sum
     popd
 done
 
@@ -97,7 +98,6 @@ fi
 # add only the files we might have changed
 git add $manifests
 git add Makefile
-git add $gomods
 
 # are there other changes?
 git diff --quiet
