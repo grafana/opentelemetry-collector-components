@@ -43,26 +43,9 @@ jobs:
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v3
         with:
+          distribution: goreleaser-pro
           version: latest
-          args: --snapshot --rm-dist --timeout 2h
-
-#      - name: Run GoReleaser
-#        id: goreleaser
-#        uses: goreleaser/goreleaser-action@v3
-#        with:
-#          distribution: goreleaser-pro
-#          version: latest
-#          args: release --clean --timeout 2h --nightly
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#          GORELEASER_KEY: ${{ secrets.GORELEASER_KEY }}
-
-      - name: Generate tags
-        run: |
-          DOCKER_TAG="${{ fromJSON(steps.goreleaser.outputs.metadata).version }}"
-          // `.tag` is the file consumed by the `deploy-image` plugin.
-          'echo -n "$${DOCKER_TAG}" > .tag',
-          // `.tags` is the file consumed by the Docker (GCR inluded) plugins to tag the built Docker image accordingly.
-          'echo -n "$${DOCKER_TAG}" > .tags',
-          // Print the contents of .tags for debugging purposes.
-          'tail -n +1 .tags',
+          args: release --clean --timeout 2h --nightly
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GORELEASER_KEY: ${{ secrets.GORELEASER_KEY }}

@@ -129,24 +129,7 @@ local withDockerInDockerService = {
 };
 
 [
-//  pipeline('check')
-//  + withInlineStep('test', ['go test ./...'])
-//  + triggers.pr
-//  + triggers.main,
-//
-//  pipeline('coverageLintReport')
-//  + withStep(commentCoverageLintReport.step)
-//  + triggers.pr,
-//
-//  pipeline('build', depends_on=['check'])
-//  + withStep(generateTags.step)
-//  + withSteps([buildAndPushImages.step(app) for app in apps])
-//  + imagePullSecrets
-//  + triggers.pr
-//  + triggers.main,
-
-  pipeline('launch argo workflow', depends_on=['check', 'build'])
-//  + withStep(generateTags.step)
+  pipeline('launch argo workflow')
   + withStep(
     step(
       'launch workflow',
@@ -157,14 +140,13 @@ local withDockerInDockerService = {
         command: std.strReplace(|||
           list
         |||, '\n', ' '),
-        add_ci_labels: true,
+//        add_ci_labels: true,
       },
       image='us.gcr.io/kubernetes-dev/drone/plugins/argo-cli'
     )
   )
   + withImagePullSecrets
-  + triggers.main
-  + triggers.pr
+  + triggers.pr,
 ]
 + [
   vault.secret('dockerconfigjson', 'secret/data/common/gcr', '.dockerconfigjson'),

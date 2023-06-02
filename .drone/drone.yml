@@ -1,7 +1,5 @@
 ---
-depends_on:
-- check
-- build
+depends_on: null
 image_pull_secrets:
 - dockerconfigjson
 kind: pipeline
@@ -14,17 +12,13 @@ steps:
   image: us.gcr.io/kubernetes-dev/drone/plugins/argo-cli
   name: launch workflow
   settings:
-    add_ci_labels: true
     command: 'list '
     namespace: otlp-gateway-v2-cd
     token:
       from_secret: argo_token
 trigger:
-  branch:
-  - main
   event:
     include:
-    - push
     - pull_request
 type: docker
 ---
@@ -51,3 +45,8 @@ get:
   path: infra/data/ci/argo-workflows/trigger-service-account
 kind: secret
 name: argo_token
+---
+kind: signature
+hmac: abdb146a1a154c140268d0dae14ca2300bd17f1207a972f2de3ec2905ed6d2dc
+
+...
