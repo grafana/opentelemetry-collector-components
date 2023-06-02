@@ -14,6 +14,8 @@ fi
 
 max_retries=50
 
+# create logs directory
+mkdir ./test/logs
 # start the distribution
 ./distributions/${distribution}/_build/otelcol --config test/config/${distribution}.yaml  > ./test/logs/otelcol-${distribution}.log 2>&1 &
 pid=$!
