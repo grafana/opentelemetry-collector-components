@@ -18,6 +18,7 @@ const (
 	Traces         InstanceType = "traces"
 	Grafana        InstanceType = "grafana"
 	OnCall         InstanceType = "oncall"
+	Profiles       InstanceType = "profiles"
 )
 
 func (i InstanceType) String() string {
@@ -56,6 +57,8 @@ func InstanceTypeFromString(value string) (InstanceType, error) {
 		return Metrics, nil
 	case OnCall.String():
 		return OnCall, nil
+	case Profiles.String():
+		return Profiles, nil
 	}
 	return "", fmt.Errorf("instance type '%v' is not valid", value)
 }

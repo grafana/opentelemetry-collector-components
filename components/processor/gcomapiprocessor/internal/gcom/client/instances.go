@@ -54,6 +54,8 @@ type Instance struct {
 	TracesInstanceURL      string       `json:"htInstanceUrl,omitempty"`
 	GrafanaInstanceID      int          `json:"grafanaInstanceId,omitempty"`
 	GrafanaInstanceURL     string       `json:"grafanaInstanceUrl,omitempty"`
+	ProfilesInstanceID     int          `json:"hpInstanceId,omitempty"`
+	ProfilesInstanceURL    string       `json:"hpInstanceUrl,omitempty"`
 	GeneratorURL           string       `json:"amInstanceGeneratorUrl,omitempty"`
 	GeneratorURLDatasource string       `json:"amInstanceGeneratorUrlDatasource,omitempty"`
 	Status                 string       `json:"status,omitempty"`
@@ -136,6 +138,9 @@ func (c *client) ListInstances(ctx context.Context, options InstanceRequestOptio
 	case Metrics:
 		noType = true
 		endpoint = cfgEndpoint + "/hosted-metrics"
+	case Profiles:
+		noType = true
+		endpoint = cfgEndpoint + "/hosted-profiles"
 	default:
 		endpoint = cfgEndpoint + "/hosted-metrics"
 	}

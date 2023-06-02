@@ -5,9 +5,10 @@ import (
 	"time"
 
 	"github.com/go-kit/log"
+	"github.com/stretchr/testify/require"
+
 	"github.com/grafana/opentelemetry-collector-components/processor/gcomapiprocessor/internal/gcom/client"
 	"github.com/grafana/opentelemetry-collector-components/processor/gcomapiprocessor/internal/gcom/client/mock"
-	"github.com/stretchr/testify/require"
 )
 
 const someCluster = "cluster"

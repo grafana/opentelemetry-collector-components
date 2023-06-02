@@ -24,6 +24,9 @@ const (
 	OrgGrafanaCloudTypeAzureSubscribed           OrgGrafanaCloudType = 31
 	OrgGrafanaCloudTypeAzureSuspended            OrgGrafanaCloudType = 32
 	OrgGrafanaCloudTypeAzureCancelled            OrgGrafanaCloudType = 33
+	OrgGrafanaCloudTypeAzurePending              OrgGrafanaCloudType = 34
+	OrgGrafanaCloudTypeAWSSubscribed             OrgGrafanaCloudType = 41
+	OrgGrafanaCloudTypeAWSPending                OrgGrafanaCloudType = 42
 )
 
 // OrgGrafanaCloudSubscribedTypes contains GrafanaCloud subscription types that
@@ -38,4 +41,5 @@ var OrgGrafanaCloudSubscribedTypes = []OrgGrafanaCloudType{
 	OrgGrafanaCloudTypeGCPFlatFeeSubscribed,
 	OrgGrafanaCloudTypeGCPSubscribed,
 	OrgGrafanaCloudTypeAzureSubscribed,
+	OrgGrafanaCloudTypeAWSSubscribed,
 }

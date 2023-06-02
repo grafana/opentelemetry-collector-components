@@ -8,8 +8,9 @@ import (
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
-	"github.com/grafana/opentelemetry-collector-components/processor/gcomapiprocessor/internal/gcom/client"
 	"github.com/opentracing/opentracing-go"
+
+	"github.com/grafana/opentelemetry-collector-components/processor/gcomapiprocessor/internal/gcom/client"
 )
 
 var errBadKey = errors.New("API Key Not Valid")

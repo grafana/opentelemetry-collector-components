@@ -452,3 +452,97 @@ var sampleGrafanaParsed = []Instance{
 		Name:      "teststack",
 	},
 }
+
+var sampleHMClusterResponse = `{
+  "items": [
+    {
+      "id": 14,
+      "slug": "alertmanager-dev-us-central-0",
+      "name": "dev-us-central-0.alertmanager",
+      "url": "https://alertmanager-dev-us-central1.grafana-dev.net",
+      "deployTo": false,
+      "description": "dev-us-central-0.alertmanager",
+      "regionId": 0,
+      "regionSlug": null,
+      "regionName": null,
+      "createdAt": "2022-07-26T22:37:00.000Z",
+      "createdBy": "raintank-81",
+      "updatedAt": null,
+      "updatedBy": "",
+      "links": [
+        {
+          "rel": "self",
+          "href": "/hm-clusters/alertmanager-dev-us-central-0"
+        },
+        {
+          "rel": "instances",
+          "href": "/instances?cluster=alertmanager-dev-us-central-0"
+        }
+      ]
+    }
+  ],
+  "orderBy": "name",
+  "direction": "asc",
+  "total": 1,
+  "pages": 1,
+  "pageSize": 1000000,
+  "page": 1,
+  "links": [
+    {
+      "rel": "self",
+      "href": "/hm-clusters"
+    }
+  ]
+}`
+
+var sampleHMClusterParsed = Cluster{
+	ID:   14,
+	Slug: "alertmanager-dev-us-central-0",
+}
+
+var sampleHGClusterResponse = `{
+  "items": [
+    {
+      "id": 1,
+      "slug": "dev-us-central-0",
+      "name": "dev-us",
+      "url": "https://hg-api-dev-us-central-0.grafana.net",
+      "deployTo": "both",
+      "description": "",
+      "regionId": 1,
+      "regionSlug": "dev-us-central",
+      "regionName": "dev-us-central",
+      "createdAt": "2022-06-20T16:08:51.000Z",
+      "createdBy": "grafana",
+      "updatedAt": "2023-01-13T18:43:53.000Z",
+      "updatedBy": "",
+      "links": [
+        {
+          "rel": "self",
+          "href": "/hg-clusters/dev-us-central-0"
+        },
+        {
+          "rel": "instances",
+          "href": "/instances?cluster=dev-us-central-0"
+        }
+      ]
+    }
+  ],
+  "orderBy": "name",
+  "direction": "asc",
+  "total": 1,
+  "pages": 1,
+  "pageSize": 1000000,
+  "page": 1,
+  "links": [
+    {
+      "rel": "self",
+      "href": "/hg-clusters"
+    }
+  ]
+}`
+
+var sampleHGClusterParsed = Cluster{
+	ID:   1,
+	Slug: "dev-us-central-0",
+}
