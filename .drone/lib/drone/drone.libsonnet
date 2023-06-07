@@ -4,6 +4,7 @@ local images = import 'images.libsonnet';
        commands,
        image=images._images.go,
        settings={},
+       platform={},
        environment={},
        entrypoint=null,
        depends_on=[],
@@ -13,6 +14,7 @@ local images = import 'images.libsonnet';
     commands: if (dir == null || dir == '') then commands else ['cd %s' % dir] + commands,
     image: image,
     settings: settings,
+    platform: platform,
     environment: environment,
     depends_on: depends_on,
   },
@@ -30,11 +32,12 @@ local images = import 'images.libsonnet';
                  commands,
                  image=images._images.go,
                  settings={},
+                 platform={},
                  environment={},
                  entrypoint=null,
                  depends_on=[],
                  dir=null)::
-    $.withStep($.step(name, commands, image, settings, environment, entrypoint, depends_on, dir)),
+    $.withStep($.step(name, commands, image, settings, platform, environment, entrypoint, depends_on, dir)),
 
   pipeline(name, steps=[], depends_on=null):: {
     kind: 'pipeline',

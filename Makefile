@@ -4,7 +4,8 @@ OTELCOL_BUILDER_VERSION ?= 0.78.2
 OTELCOL_BUILDER_DIR ?= ${HOME}/bin
 OTELCOL_BUILDER ?= ${OTELCOL_BUILDER_DIR}/ocb
 
-DISTRIBUTIONS ?= "sidecar,tracing,otel-grafana"
+#DISTRIBUTIONS ?= "sidecar,tracing,otel-grafana"
+DISTRIBUTIONS ?= "otel-grafana"
 
 ci: check build
 check: test

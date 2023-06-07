@@ -1,25 +1,324 @@
 ---
 depends_on: null
-image_pull_secrets:
-- dockerconfigjson
 kind: pipeline
-name: launch argo workflow
+name: build distributions
 steps:
-- commands: []
+- commands:
+  - make generate-sources
   depends_on: []
   entrypoint: null
   environment: {}
-  image: us.gcr.io/kubernetes-dev/drone/plugins/argo-cli
-  name: launch workflow
-  settings:
-    command: 'list '
-    namespace: otlp-gateway-v2-cd
-    token:
-      from_secret: argo_token
+  image: golang:1.20.4
+  name: build distributions
+  platform: {}
+  settings: {}
 trigger:
+  branch:
+  - main
   event:
     include:
     - pull_request
+    - push
+type: docker
+---
+depends_on:
+- build distributions
+kind: pipeline
+name: build binaries for windows 386
+steps:
+- commands:
+  - go build -C ./distributions/otel-grafana/_build -ldflags="-s -w" -trimpath
+  depends_on: []
+  entrypoint: null
+  environment: {}
+  image: golang:1.20.4
+  name: build binaries
+  platform:
+    arch: "386"
+    os: windows
+  settings: {}
+trigger:
+  branch:
+  - main
+  event:
+    include:
+    - pull_request
+    - push
+type: docker
+---
+depends_on:
+- build distributions
+kind: pipeline
+name: build binaries for windows amd64
+steps:
+- commands:
+  - go build -C ./distributions/otel-grafana/_build -ldflags="-s -w" -trimpath
+  depends_on: []
+  entrypoint: null
+  environment: {}
+  image: golang:1.20.4
+  name: build binaries
+  platform:
+    arch: amd64
+    os: windows
+  settings: {}
+trigger:
+  branch:
+  - main
+  event:
+    include:
+    - pull_request
+    - push
+type: docker
+---
+depends_on:
+- build distributions
+kind: pipeline
+name: build binaries for windows arm64
+steps:
+- commands:
+  - go build -C ./distributions/otel-grafana/_build -ldflags="-s -w" -trimpath
+  depends_on: []
+  entrypoint: null
+  environment: {}
+  image: golang:1.20.4
+  name: build binaries
+  platform:
+    arch: arm64
+    os: windows
+  settings: {}
+trigger:
+  branch:
+  - main
+  event:
+    include:
+    - pull_request
+    - push
+type: docker
+---
+depends_on:
+- build distributions
+kind: pipeline
+name: build binaries for windows ppc64le
+steps:
+- commands:
+  - go build -C ./distributions/otel-grafana/_build -ldflags="-s -w" -trimpath
+  depends_on: []
+  entrypoint: null
+  environment: {}
+  image: golang:1.20.4
+  name: build binaries
+  platform:
+    arch: ppc64le
+    os: windows
+  settings: {}
+trigger:
+  branch:
+  - main
+  event:
+    include:
+    - pull_request
+    - push
+type: docker
+---
+depends_on:
+- build distributions
+kind: pipeline
+name: build binaries for linux 386
+steps:
+- commands:
+  - go build -C ./distributions/otel-grafana/_build -ldflags="-s -w" -trimpath
+  depends_on: []
+  entrypoint: null
+  environment: {}
+  image: golang:1.20.4
+  name: build binaries
+  platform:
+    arch: "386"
+    os: linux
+  settings: {}
+trigger:
+  branch:
+  - main
+  event:
+    include:
+    - pull_request
+    - push
+type: docker
+---
+depends_on:
+- build distributions
+kind: pipeline
+name: build binaries for linux amd64
+steps:
+- commands:
+  - go build -C ./distributions/otel-grafana/_build -ldflags="-s -w" -trimpath
+  depends_on: []
+  entrypoint: null
+  environment: {}
+  image: golang:1.20.4
+  name: build binaries
+  platform:
+    arch: amd64
+    os: linux
+  settings: {}
+trigger:
+  branch:
+  - main
+  event:
+    include:
+    - pull_request
+    - push
+type: docker
+---
+depends_on:
+- build distributions
+kind: pipeline
+name: build binaries for linux arm64
+steps:
+- commands:
+  - go build -C ./distributions/otel-grafana/_build -ldflags="-s -w" -trimpath
+  depends_on: []
+  entrypoint: null
+  environment: {}
+  image: golang:1.20.4
+  name: build binaries
+  platform:
+    arch: arm64
+    os: linux
+  settings: {}
+trigger:
+  branch:
+  - main
+  event:
+    include:
+    - pull_request
+    - push
+type: docker
+---
+depends_on:
+- build distributions
+kind: pipeline
+name: build binaries for linux ppc64le
+steps:
+- commands:
+  - go build -C ./distributions/otel-grafana/_build -ldflags="-s -w" -trimpath
+  depends_on: []
+  entrypoint: null
+  environment: {}
+  image: golang:1.20.4
+  name: build binaries
+  platform:
+    arch: ppc64le
+    os: linux
+  settings: {}
+trigger:
+  branch:
+  - main
+  event:
+    include:
+    - pull_request
+    - push
+type: docker
+---
+depends_on:
+- build distributions
+kind: pipeline
+name: build binaries for darwin 386
+steps:
+- commands:
+  - go build -C ./distributions/otel-grafana/_build -ldflags="-s -w" -trimpath
+  depends_on: []
+  entrypoint: null
+  environment: {}
+  image: golang:1.20.4
+  name: build binaries
+  platform:
+    arch: "386"
+    os: darwin
+  settings: {}
+trigger:
+  branch:
+  - main
+  event:
+    include:
+    - pull_request
+    - push
+type: docker
+---
+depends_on:
+- build distributions
+kind: pipeline
+name: build binaries for darwin amd64
+steps:
+- commands:
+  - go build -C ./distributions/otel-grafana/_build -ldflags="-s -w" -trimpath
+  depends_on: []
+  entrypoint: null
+  environment: {}
+  image: golang:1.20.4
+  name: build binaries
+  platform:
+    arch: amd64
+    os: darwin
+  settings: {}
+trigger:
+  branch:
+  - main
+  event:
+    include:
+    - pull_request
+    - push
+type: docker
+---
+depends_on:
+- build distributions
+kind: pipeline
+name: build binaries for darwin arm64
+steps:
+- commands:
+  - go build -C ./distributions/otel-grafana/_build -ldflags="-s -w" -trimpath
+  depends_on: []
+  entrypoint: null
+  environment: {}
+  image: golang:1.20.4
+  name: build binaries
+  platform:
+    arch: arm64
+    os: darwin
+  settings: {}
+trigger:
+  branch:
+  - main
+  event:
+    include:
+    - pull_request
+    - push
+type: docker
+---
+depends_on:
+- build distributions
+kind: pipeline
+name: build binaries for darwin ppc64le
+steps:
+- commands:
+  - go build -C ./distributions/otel-grafana/_build -ldflags="-s -w" -trimpath
+  depends_on: []
+  entrypoint: null
+  environment: {}
+  image: golang:1.20.4
+  name: build binaries
+  platform:
+    arch: ppc64le
+    os: darwin
+  settings: {}
+trigger:
+  branch:
+  - main
+  event:
+    include:
+    - pull_request
+    - push
 type: docker
 ---
 get:
@@ -47,6 +346,6 @@ kind: secret
 name: argo_token
 ---
 kind: signature
-hmac: abdb146a1a154c140268d0dae14ca2300bd17f1207a972f2de3ec2905ed6d2dc
+hmac: 634de6044011d3acfe45e92d9f6703c278ee321601a6ccd0d224f918efdd636e
 
 ...

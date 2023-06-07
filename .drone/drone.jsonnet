@@ -12,46 +12,34 @@ local withSteps = drone.withSteps;
 local dockerPluginName = 'plugins/gcr';
 
 local dockerPluginBaseSettings = {
-  registry: 'us.gcr.io',
-  repo: 'kubernetes-dev/otlp-gateway',
+  registry: 'ghcr.io',
+  repo: 'grafana/opentelemetry-collector-components',
   json_key: {
     from_secret: 'gcr_admin',
   },
 };
-
+// TODO can we get these values from env variable DISTRIBUTIONS?
 local apps = [
-  'otlp-gateway',
+  'otel-grafana',
+//  'tracing',
+//  'sidecar'
+];
+local goos = [
+//  'windows',
+  'linux',
+//  'darwin'
+];
+
+local goarch = [
+//  '386',
+  'amd64',
+  'arm64',
+//  'ppc64le'
 ];
 
 local withImagePullSecrets = {
   image_pull_secrets: ['dockerconfigjson'],
 };
-
-local commentCoverageLintReport = {
-  step: step('coverage + lint', $.commands, image=$.image, environment=$.environment),
-  commands: [
-    // Build drone utilities.
-    'scripts/build-drone-utilities.sh',
-    // Generate the raw coverage report.
-    'go test -coverprofile=coverage.out ./...',
-    // Process the raw coverage report.
-    '.drone/coverage > coverage_report.out',
-    // Generate the lint report.
-    'scripts/generate-lint-report.sh',
-    // Combine the reports.
-    'cat coverage_report.out > report.out',
-    'echo "" >> report.out',
-    'cat lint.out >> report.out',
-    // Submit the comment to GitHub.
-    '.drone/ghcomment -id "Go coverage report:" -bodyfile report.out',
-  ],
-  environment: {
-    GRAFANABOT_PAT: { from_secret: 'gh_token' },
-  },
-  image: images._images.goLint,
-};
-
-local imagePullSecrets = { image_pull_secrets: ['dockerconfigjson'] };
 
 local generateTags = {
   step: step('generate tags', $.commands),
@@ -59,76 +47,100 @@ local generateTags = {
     'DOCKER_TAG=$(bash scripts/generate-tags.sh)',
     // `.tag` is the file consumed by the `deploy-image` plugin.
     'echo -n "$${DOCKER_TAG}" > .tag',
-    // `.tags` is the file consumed by the Docker (GCR inluded) plugins to tag the built Docker image accordingly.
+    // `.tags` is the file consumed by the Docker (GCR included) plugins to tag the built Docker image accordingly.
     'echo -n "$${DOCKER_TAG}" > .tags',
     // Print the contents of .tags for debugging purposes.
     'tail -n +1 .tags',
   ],
 };
 
+local buildDistributions = {
+  step: step('build distributions', $.commands),
+  commands: [
+    'make generate-sources',
+  ],
+};
+
+local buildBinaries = {
+  step(os, arch): step(
+    'build binaries',
+    $.commands,
+    platform={
+      os: os,
+      arch: arch,
+    },
+  ),
+  commands: [
+    'go build -C ./distributions/%s/_build -ldflags="-s -w" -trimpath' % app
+  for app in apps],
+  environment: {
+    CGO_ENABLED: 0,
+  },
+};
+
 local buildAndPushImages = {
-  // step builds the pipeline step to build and push a docker image
-  step(app): step(
+  step(app, os, arch): step(
     '%s: build and push' % app,
     [],
     image=buildAndPushImages.pluginName,
     settings=buildAndPushImages.settings(app),
+    platform=buildAndPushImages.platform(os, arch),
   ),
-
-  pluginName: 'plugins/gcr',
+  pluginName: 'plugins/docker',
 
   // settings generates the CI Pipeline step settings
   settings(app): {
     repo: $._repo(app),
     registry: $._registry,
-    dockerfile: './Dockerfile',
-    json_key: { from_secret: 'gcr_admin' },
-    mirror: 'https://mirror.gcr.io',
-    build_args: ['cmd=' + app],
+    dockerfile: './distributions/%s/Dockerfile' % app,
+    // TODO use DOCKER_REPO_OWNER env instead of 'grafana'
+    username: 'grafana',
+    password: { from_secret: 'gh_token' },
   },
 
   // image generates the image for the given app
   image(app): $._registry + '/' + $._repo(app),
-
-  _repo(app):: 'kubernetes-dev/' + app,
-  _registry:: 'us.gcr.io',
-};
-
-local withDockerSockVolume = {
-  volumes+: [
-    {
-      name: 'dockersock',
-      path: '/var/run',
-    },
-  ],
-};
-
-local withDockerInDockerService = {
-  services: [
-    {
-      name: 'docker',
-      image: images._images.dind,
-      entrypoint: ['dockerd'],
-      command: [
-        '--tls=false',
-        '--host=tcp://0.0.0.0:2375',
-        '--registry-mirror=https://mirror.gcr.io',
-      ],
-      privileged: true,
-    } + withDockerSockVolume,
-  ],
-  environment+: {
-    DOCKERD_ROOTLESS_ROOTLESSKIT_FLAGS: '-p 0.0.0.0:2376:2376/tcp',
+  platform(os, arch): {
+    os: os,
+    arch: arch,
   },
-  volumes+: [
-    {
-      name: 'dockersock',
-      temp: {},
-    },
-  ],
+  _repo(app):: 'grafana/opentelemetry-collector-components/' + app,
+  _registry:: 'ghcr.io',
 };
 
 [
+  pipeline('build distributions')
+  + withStep(buildDistributions.step)
+  + triggers.pr
+  + triggers.main,
+] +
+[
+  pipeline('build binaries for %s %s' % [os, arch], depends_on=['build distributions'])
+  + withStep(buildBinaries.step(os, arch))
+  + triggers.pr
+  + triggers.main,
+  for os in goos
+  for arch in goarch
+]
+//+ [
+//  pipeline('build and push images for linux and amd64', depends_on=['build distributions'])
+//  + withStep(generateTags.step)
+//  + withSteps([buildAndPushImages.step(app, 'linux', 'amd64') for app in apps])
+//  + withImagePullSecrets
+//  + triggers.pr
+//]
++ std.filter(function(p) p != null, [
+  if (os == 'darwin' && arch == '386') || (os == 'windows' && arch == 'arm64') then null else
+    pipeline('build and push images for os: %s, arch: %s' % [os, arch], depends_on=['build distributions'])
+    + withStep(generateTags.step)
+    + withSteps([buildAndPushImages.step(app, os, arch) for app in apps])
+    + withImagePullSecrets
+    + triggers.pr
+    + triggers.main,
+  for os in goos
+  for arch in goarch
+])
++ [
   pipeline('launch argo workflow')
   + withStep(
     step(
@@ -146,7 +158,7 @@ local withDockerInDockerService = {
     )
   )
   + withImagePullSecrets
-  + triggers.pr,
+  + triggers.main,
 ]
 + [
   vault.secret('dockerconfigjson', 'secret/data/common/gcr', '.dockerconfigjson'),
