@@ -23,7 +23,7 @@ type: docker
 ---
 depends_on: null
 kind: pipeline
-name: check gcom api processor
+name: test gcom api processor
 steps:
 - commands:
   - cd components/processor/gcomapiprocessor && go test -v ./...
@@ -44,7 +44,7 @@ type: docker
 ---
 depends_on:
 - check
-- check gcom api processor
+- test gcom api processor
 image_pull_secrets:
 - dockerconfigjson
 kind: pipeline
@@ -176,6 +176,6 @@ kind: secret
 name: argo_token
 ---
 kind: signature
-hmac: aef6776ab7bfebe5e6ed2625fe567872a3db7bec5873ef0877150100867b7668
+hmac: b2396c46d9d973061641985f48adebbf6383cd70700f911c469fe30472242c59
 
 ...
