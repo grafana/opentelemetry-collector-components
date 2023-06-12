@@ -36,7 +36,7 @@ local check = {
   step: step(
     'check',
     $.commands,
-    environment=check.environment
+    environment=$.environment
   ),
   commands: [
     'make ci',
@@ -50,7 +50,7 @@ local buildDistributions = {
   step: step(
     'build distributions',
     $.commands,
-    environment=buildDistributions.environment
+    environment=$.environment
   ),
   commands: [
     'make generate-sources',
@@ -64,15 +64,16 @@ local buildBinaries = {
   step(app): step(
     'build binaries',
     $.commands,
-    platform={
-      os: goos,
-      arch: goarch,
-    },
-    environment=buildBinaries.environment
+    platform=$.platform,
+    environment=$.environment
   ),
   commands: [
     'go build -o ../../../%(app)s -C distributions/%(app)s/_build -ldflags="-s -w" -trimpath' % {app: app}
   for app in apps],
+  platform: {
+    os: goos,
+    arch: goarch,
+  },
   environment: {
     CGO_ENABLED: 0,
   },
@@ -82,9 +83,9 @@ local buildAndPushImages = {
   step(app): step(
     '%s: build and push' % app,
     [],
-    image=buildAndPushImages.pluginName,
-    settings=buildAndPushImages.settings(app),
-    platform=buildAndPushImages.platform,
+    image=$.pluginName,
+    settings=$.settings(app),
+    platform=$.platform,
   ),
   pluginName: 'plugins/docker',
 
