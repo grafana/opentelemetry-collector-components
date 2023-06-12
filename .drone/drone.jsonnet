@@ -154,6 +154,5 @@ local buildAndPushImages = {
 + [
   vault.secret('dockerconfigjson', 'secret/data/common/gcr', '.dockerconfigjson'),
   vault.secret('gh_token', 'infra/data/ci/github/grafanabot', 'pat'),
-  vault.secret('gcr_admin', 'infra/data/ci/gcr-admin', 'service-account'),
   vault.secret('argo_token', 'infra/data/ci/argo-workflows/trigger-service-account', 'token'),
 ]
