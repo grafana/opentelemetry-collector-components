@@ -50,3 +50,7 @@ go:
 			exit 1; \
 		fi \
 	}
+
+# CI
+drone:
+	scripts/generate-drone-yml.sh

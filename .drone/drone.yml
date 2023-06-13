@@ -1,0 +1,175 @@
+---
+depends_on: null
+kind: pipeline
+name: check
+steps:
+- commands:
+  - make ci
+  depends_on: []
+  entrypoint: null
+  environment:
+    DISTRIBUTIONS: otel-grafana
+  image: golang:1.20.4
+  name: check
+  platform: {}
+  settings: {}
+trigger:
+  branch:
+  - main
+  event:
+    include:
+    - push
+type: docker
+---
+depends_on: null
+kind: pipeline
+name: test gcom api processor
+steps:
+- commands:
+  - cd components/processor/gcomapiprocessor && go test -v ./...
+  depends_on: []
+  entrypoint: null
+  environment: {}
+  image: golang:1.20.4
+  name: verify
+  platform: {}
+  settings: {}
+trigger:
+  branch:
+  - main
+  event:
+    include:
+    - push
+type: docker
+---
+depends_on:
+- check
+- test gcom api processor
+image_pull_secrets:
+- dockerconfigjson
+kind: pipeline
+name: build
+steps:
+- commands:
+  - make generate-sources
+  depends_on: []
+  entrypoint: null
+  environment:
+    DISTRIBUTIONS: otel-grafana
+  image: golang:1.20.4
+  name: build distributions
+  platform: {}
+  settings: {}
+- commands:
+  - go build -o ../../../otel-grafana -C distributions/otel-grafana/_build -ldflags="-s
+    -w" -trimpath
+  depends_on: []
+  entrypoint: null
+  environment:
+    CGO_ENABLED: 0
+  image: golang:1.20.4
+  name: build binaries
+  platform:
+    arch: amd64
+    os: linux
+  settings: {}
+- commands:
+  - DOCKER_TAG=$(bash scripts/generate-tags.sh)
+  - echo -n "$${DOCKER_TAG}" > .tag
+  - echo -n "$${DOCKER_TAG}" > .tags
+  - tail -n +1 .tags
+  depends_on: []
+  entrypoint: null
+  environment: {}
+  image: golang:1.20.4
+  name: generate tags
+  platform: {}
+  settings: {}
+- commands: []
+  depends_on: []
+  entrypoint: null
+  environment: {}
+  image: plugins/docker
+  name: 'otel-grafana: build and push'
+  platform:
+    arch: amd64
+    os: linux
+  settings:
+    dockerfile: ./distributions/otel-grafana/Dockerfile
+    password:
+      from_secret: gh_token
+    registry: ghcr.io
+    repo: ghcr.io/grafana/opentelemetry-collector-components/otel-grafana
+    username: ${DRONE_REPO_OWNER}
+trigger:
+  branch:
+  - main
+  event:
+    include:
+    - push
+type: docker
+---
+depends_on:
+- build
+image_pull_secrets:
+- dockerconfigjson
+kind: pipeline
+name: launch argo workflow
+steps:
+- commands:
+  - DOCKER_TAG=$(bash scripts/generate-tags.sh)
+  - echo -n "$${DOCKER_TAG}" > .tag
+  - echo -n "$${DOCKER_TAG}" > .tags
+  - tail -n +1 .tags
+  depends_on: []
+  entrypoint: null
+  environment: {}
+  image: golang:1.20.4
+  name: generate tags
+  platform: {}
+  settings: {}
+- commands: []
+  depends_on: []
+  entrypoint: null
+  environment: {}
+  image: us.gcr.io/kubernetes-dev/drone/plugins/argo-cli
+  name: launch workflow
+  platform: {}
+  settings:
+    add_ci_labels: true
+    command: 'submit --from workflowtemplate/deploy-otlp-gateway-v2 --name otlp-gateway-v2-deploy-$(cat
+      .tag) --parameter dockertag=$(cat .tag) --parameter commit=${DRONE_COMMIT} --parameter
+      commit_author=${DRONE_COMMIT_AUTHOR} --parameter commit_link=${DRONE_COMMIT_LINK} '
+    namespace: otlp-gateway-v2-cd
+    token:
+      from_secret: argo_token
+trigger:
+  branch:
+  - main
+  event:
+    include:
+    - push
+type: docker
+---
+get:
+  name: .dockerconfigjson
+  path: secret/data/common/gcr
+kind: secret
+name: dockerconfigjson
+---
+get:
+  name: pat
+  path: infra/data/ci/github/grafanabot
+kind: secret
+name: gh_token
+---
+get:
+  name: token
+  path: infra/data/ci/argo-workflows/trigger-service-account
+kind: secret
+name: argo_token
+---
+kind: signature
+hmac: 2a1ef7ebd5b30cd4e548ea58f11362f83a54534eaf7790011c747d61f98e7a91
+
+...
