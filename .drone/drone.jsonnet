@@ -111,12 +111,14 @@ local buildAndPushImages = {
 [
   pipeline('check')
   + withStep(check.step)
+  + triggers.pr
   + triggers.main,
 
   pipeline('test gcom api processor')
   + withStep(
     step('verify', commands=['cd components/processor/gcomapiprocessor && go test -v ./...'])
   )
+  + triggers.pr
   + triggers.main,
 
   pipeline('build', depends_on=['check', 'test gcom api processor'])
