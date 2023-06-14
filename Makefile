@@ -15,11 +15,6 @@ build: go ocb
 test: build
 	@./test/test-all.sh -d "${DISTRIBUTIONS}"
 
-generate: generate-sources generate-goreleaser
-
-generate-goreleaser: go
-	@${GO} run -tags releaser goreleaser/main.go -d "${DISTRIBUTIONS}" > .goreleaser.yaml
-
 generate-sources: go ocb
 	@./scripts/build.sh -d "${DISTRIBUTIONS}" -s true -b ${OTELCOL_BUILDER} -g ${GO}
 
