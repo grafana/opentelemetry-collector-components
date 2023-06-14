@@ -62,14 +62,13 @@ func newAPIProcessor(cfg *Config, settings component.TelemetrySettings, s signal
 		cl = gcom.NewMockGcomClient()
 	}
 
-	ic, err := cache.NewInstanceCache(
-		cache.InstanceCacheConfig{
+	ic, err := cache.NewMultiInstanceCache(
+		cache.InstanceCachesConfig{
 			CompleteCacheRefreshDuration:    cfg.Cache.CompleteRefreshDuration,
 			IncrementalCacheRefreshDuration: cfg.Cache.IncrementalRefreshDuration,
-			InstanceTypes:                   []client.InstanceType{client.Grafana},
+			GrafanaClusterFilters:           cfg.Cache.GrafanaClusterFilters,
 		},
 		logger,
-		[]client.InstanceType{client.Grafana},
 		cl,
 	)
 	if err != nil {

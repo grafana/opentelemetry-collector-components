@@ -20,7 +20,8 @@ See the [design doc] that explains how this component is going to be used.
        cache is completely refreshed.
     - `incremental_refresh_duration` (default 5m): Duration until instance
        cache is updated with changes.
-
+    - `grafana_cluster_filters` Comma-separated list of cluster ids where grafana instances are hosted
+    
 Example of usage with the routing processor:
 
 ```yaml

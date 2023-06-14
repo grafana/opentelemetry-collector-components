@@ -23,6 +23,7 @@ type clientConfig struct {
 type cacheConfig struct {
 	CompleteRefreshDuration    time.Duration `mapstructure:"complete_refresh_duration"`
 	IncrementalRefreshDuration time.Duration `mapstructure:"incremental_refresh_duration"`
+	GrafanaClusterFilters      []string      `mapstructure:"grafana_cluster_filters"`
 }
 
 var _ component.Config = (*Config)(nil)

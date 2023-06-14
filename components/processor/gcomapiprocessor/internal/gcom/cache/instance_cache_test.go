@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/go-kit/log"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/grafana/opentelemetry-collector-components/processor/gcomapiprocessor/internal/gcom/client"
@@ -351,4 +352,119 @@ func TestInstanceCache_incrementalCacheRefresh(t *testing.T) {
 		_, err = cache.GetInstanceInfo(client.Logs, deletedNonCachedInstance.ID)
 		return err != nil
 	}, time.Second, 5*time.Millisecond)
+}
+
+func TestInstanceCache_NewMultiInstanceCache(t *testing.T) {
+	t.Parallel()
+
+	mockClient := &mock.Client{Instances: mockInstances}
+
+	tests := []struct {
+		name    string
+		filters clusterFilters
+		error   string
+	}{
+		{
+			name:    "create multi cache with two filters",
+			filters: clusterFilters{someCluster, otherCluster},
+		},
+		{
+			name:  "create multi cache without filters",
+			error: "failed to create multiInstanceCache. must include at least one InstanceCache",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cfg := InstanceCachesConfig{
+				IncrementalCacheRefreshDuration: 10 * time.Minute,
+				CompleteCacheRefreshDuration:    10 * time.Minute,
+				GrafanaClusterFilters:           tt.filters,
+			}
+			_, err := NewMultiInstanceCache(
+				cfg,
+				log.NewNopLogger(),
+				mockClient,
+			)
+			if tt.error != "" {
+				assert.ErrorContains(t, err, tt.error)
+				return
+			}
+			assert.NoError(t, err)
+		})
+	}
+}
+
+func TestInstanceCache_GetInstanceInfo(t *testing.T) {
+	mockClient := &mock.Client{Instances: mockInstances}
+
+	tests := []struct {
+		name               string
+		filters            clusterFilters
+		getInstanceInfoFor []client.Instance
+		error              string
+	}{
+		{
+			name:    "lookup for id in multi cache with a single cluster filter",
+			filters: clusterFilters{someCluster},
+			getInstanceInfoFor: []client.Instance{
+				{
+					ID:    9,
+					OrgID: 9,
+				},
+			},
+		},
+		{
+			name:    "lookup for ids in multi cache with multiple cluster filters",
+			filters: clusterFilters{someCluster, otherCluster},
+			getInstanceInfoFor: []client.Instance{
+				{
+					ID:    9,
+					OrgID: 9,
+				},
+				{
+					ID:    10,
+					OrgID: 10,
+				},
+			},
+		},
+		{
+			name:    "lookup for missing id in multi cache with multiple cluster filters",
+			filters: clusterFilters{someCluster, otherCluster},
+			getInstanceInfoFor: []client.Instance{
+				{
+					ID:    8,
+					OrgID: 8,
+				},
+			},
+			error: "grafana instance with ID 8 does not exist",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			cfg := InstanceCachesConfig{
+				IncrementalCacheRefreshDuration: 10 * time.Minute,
+				CompleteCacheRefreshDuration:    10 * time.Minute,
+				GrafanaClusterFilters:           tt.filters,
+			}
+			cache, err := NewMultiInstanceCache(
+				cfg,
+				log.NewNopLogger(),
+				mockClient,
+			)
+			require.NoError(t, err, "error building cache: %s", err)
+
+			for _, instance := range tt.getInstanceInfoFor {
+				cached, err := cache.GetInstanceInfo(client.Grafana, instance.ID)
+				if tt.error != "" {
+					assert.ErrorContains(t, err, tt.error)
+					return
+				}
+				assert.Equal(t, cached.ID, instance.ID, "Expected instance id %d must be equal to %d", cached.ID, instance.ID)
+				assert.Equal(t, cached.OrgID, instance.OrgID, "Expected instance org id %d must be equal to %d", cached.ID, instance.ID)
+			}
+		})
+	}
 }

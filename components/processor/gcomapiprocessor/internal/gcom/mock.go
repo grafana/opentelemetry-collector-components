@@ -45,6 +45,7 @@ var (
 	GrafanaInstanceOne = client.Instance{
 		ID:                 StackOne,
 		OrgID:              OrgOne,
+		ClusterName:        "1",
 		LogsInstanceID:     1111,
 		LogsInstanceURL:    "https://loki-dev-01-dev-us-central-0.grafana.net",
 		PromInstanceID:     11,
