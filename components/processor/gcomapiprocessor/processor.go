@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 
 	collectorclient "go.opentelemetry.io/collector/client"
 	"go.opentelemetry.io/collector/component"
@@ -66,7 +67,7 @@ func newAPIProcessor(cfg *Config, settings component.TelemetrySettings, s signal
 		cache.InstanceCachesConfig{
 			CompleteCacheRefreshDuration:    cfg.Cache.CompleteRefreshDuration,
 			IncrementalCacheRefreshDuration: cfg.Cache.IncrementalRefreshDuration,
-			GrafanaClusterFilters:           cfg.Cache.GrafanaClusterFilters,
+			GrafanaClusterFilters:           strings.Split(cfg.Cache.GrafanaClusterFilters, ","),
 		},
 		logger,
 		cl,

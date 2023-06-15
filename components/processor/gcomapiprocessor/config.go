@@ -23,7 +23,7 @@ type clientConfig struct {
 type cacheConfig struct {
 	CompleteRefreshDuration    time.Duration `mapstructure:"complete_refresh_duration"`
 	IncrementalRefreshDuration time.Duration `mapstructure:"incremental_refresh_duration"`
-	GrafanaClusterFilters      []string      `mapstructure:"grafana_cluster_filters"`
+	GrafanaClusterFilters      string        `mapstructure:"grafana_cluster_filters"`
 }
 
 var _ component.Config = (*Config)(nil)
@@ -34,6 +34,9 @@ func (c *Config) Validate() error {
 	}
 	if c.Client.Key == "" {
 		return errors.New("grafana API key is missing")
+	}
+	if c.Cache.GrafanaClusterFilters == "" {
+		return errors.New("grafana cluster filters is missing")
 	}
 	return nil
 }

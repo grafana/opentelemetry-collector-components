@@ -6,6 +6,7 @@ gcomapi:
   cache:
     complete_refresh_duration: 1s
     incremental_refresh_duration: 1s
+    grafana_cluster_filters: 1,2
 
 gcomapi/missing_endpoint:
   client:
