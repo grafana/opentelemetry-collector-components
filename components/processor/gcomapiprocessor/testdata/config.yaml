@@ -15,3 +15,8 @@ gcomapi/missing_endpoint:
 
 gcomapi/missing_key:
   client:
+
+gcomapi/missing_grafana_cluster_filters:
+  client:
+    endpoint: "http://localhost:3000"
+    key: "test key"
