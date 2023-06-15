@@ -23,7 +23,7 @@ func TestProcessor_EnrichContextWithSignalInstanceURL(t *testing.T) {
 
 	cfg := createDefaultConfig().(*Config)
 	cfg.Client.Endpoint = "mock://fake.com"
-	cfg.Cache.GrafanaClusterFilters = "1"
+	cfg.GrafanaClusterFilters = "1"
 
 	tests := []struct {
 		name    string

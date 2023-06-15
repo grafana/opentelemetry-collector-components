@@ -67,7 +67,7 @@ func newAPIProcessor(cfg *Config, settings component.TelemetrySettings, s signal
 		cache.InstanceCachesConfig{
 			CompleteCacheRefreshDuration:    cfg.Cache.CompleteRefreshDuration,
 			IncrementalCacheRefreshDuration: cfg.Cache.IncrementalRefreshDuration,
-			GrafanaClusterFilters:           strings.Split(cfg.Cache.GrafanaClusterFilters, ","),
+			GrafanaClusterFilters:           parseGrafanaClusterFilters(cfg.GrafanaClusterFilters),
 		},
 		logger,
 		cl,
@@ -168,4 +168,13 @@ func extractTenantIDAndURL(s signal, i client.Instance) (int, string) {
 	}
 	// should not happen
 	return 0, ""
+}
+
+func parseGrafanaClusterFilters(clusterFilters string) []string {
+	var out []string
+	clusterIDs := strings.Split(clusterFilters, ",")
+	for _, clusterID := range clusterIDs {
+		out = append(out, strings.TrimSpace(clusterID))
+	}
+	return out
 }

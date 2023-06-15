@@ -32,8 +32,8 @@ func TestLoadConfig(t *testing.T) {
 				Cache: cacheConfig{
 					CompleteRefreshDuration:    duration,
 					IncrementalRefreshDuration: duration,
-					GrafanaClusterFilters:      "1,2",
 				},
+				GrafanaClusterFilters: "1,2",
 			},
 		},
 		{

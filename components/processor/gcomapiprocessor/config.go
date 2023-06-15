@@ -9,9 +9,10 @@ import (
 )
 
 type Config struct {
-	ServiceName string       `mapstructure:"service_name"`
-	Client      clientConfig `mapstructure:"client"`
-	Cache       cacheConfig  `mapstructure:"cache"`
+	ServiceName           string       `mapstructure:"service_name"`
+	Client                clientConfig `mapstructure:"client"`
+	Cache                 cacheConfig  `mapstructure:"cache"`
+	GrafanaClusterFilters string       `mapstructure:"grafana_cluster_filters"`
 }
 
 type clientConfig struct {
@@ -23,7 +24,6 @@ type clientConfig struct {
 type cacheConfig struct {
 	CompleteRefreshDuration    time.Duration `mapstructure:"complete_refresh_duration"`
 	IncrementalRefreshDuration time.Duration `mapstructure:"incremental_refresh_duration"`
-	GrafanaClusterFilters      string        `mapstructure:"grafana_cluster_filters"`
 }
 
 var _ component.Config = (*Config)(nil)
@@ -35,7 +35,7 @@ func (c *Config) Validate() error {
 	if c.Client.Key == "" {
 		return errors.New("grafana API key is missing")
 	}
-	if c.Cache.GrafanaClusterFilters == "" {
+	if c.GrafanaClusterFilters == "" {
 		return errors.New("grafana cluster filters is missing")
 	}
 	return nil
