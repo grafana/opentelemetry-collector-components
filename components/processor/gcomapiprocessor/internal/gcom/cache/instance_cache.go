@@ -2,15 +2,14 @@ package cache
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
+	"github.com/pkg/errors"
 
 	"github.com/grafana/opentelemetry-collector-components/processor/gcomapiprocessor/internal/gcom/client"
 )
@@ -29,46 +28,13 @@ type InstanceCacheConfig struct {
 
 type instanceTypes []client.InstanceType
 
-// String implements a diagnostic for the flag Value interface
-func (it *instanceTypes) String() string {
-	return fmt.Sprint(*it)
+type InstanceCachesConfig struct {
+	CompleteCacheRefreshDuration    time.Duration
+	IncrementalCacheRefreshDuration time.Duration
+	GrafanaClusterFilters           clusterFilters
 }
 
-// Set implements the flag Value interface
-// This enables either `-flag val1,val2` OR `-flag val1 -flag val2`
-func (it *instanceTypes) Set(value string) error {
-	for _, strInstanceType := range strings.Split(value, ",") {
-		instanceType, err := client.InstanceTypeFromString(strInstanceType)
-		if err != nil {
-			return err
-		}
-		*it = append(*it, instanceType)
-	}
-	return nil
-}
-
-// RegisterFlagsWithPrefix adds the flags required to config this to the given FlagSet
-func (cfg *InstanceCacheConfig) RegisterFlagsWithPrefix(prefix string, f *flag.FlagSet) {
-	f.DurationVar(
-		&cfg.IncrementalCacheRefreshDuration,
-		prefix+"incremental-cache-refresh-duration",
-		5*time.Minute,
-		"duration until instance cache is updated with changes.",
-	)
-	f.DurationVar(
-		&cfg.CompleteCacheRefreshDuration,
-		prefix+"complete-cache-refresh-duration",
-		5*time.Hour,
-		"duration until instance cache is completely refreshed.",
-	)
-	f.StringVar(&cfg.GrafanaClusterFilter,
-		prefix+"instance-cache.grafana-cluster-filter",
-		"",
-		"load instances in grafana cache only from specified cluster")
-	f.Var(&cfg.InstanceTypes,
-		prefix+"instance-cache.instance-types",
-		"comma-separated list of instance type caches")
-}
+type clusterFilters []string
 
 type instanceCache struct {
 	cfg             InstanceCacheConfig
@@ -283,4 +249,66 @@ func (i *instanceCache) GetMetricsInstanceIDByOrgIDAndInstanceName(orgID, instan
 	}
 
 	return id
+}
+
+type multiInstanceCache struct {
+	instanceCaches []InstanceCache
+}
+
+// NewMultiInstanceCache creates an multiInstanceCache which maintains a cache of instances and keeps it updated.
+func NewMultiInstanceCache(
+	cfg InstanceCachesConfig,
+	logger log.Logger,
+	gclient client.Client,
+) (InstanceCache, error) {
+	if len(cfg.GrafanaClusterFilters) == 0 {
+		return nil, errors.New("failed to create multiInstanceCache. must include at least one InstanceCache")
+	}
+
+	var caches []InstanceCache
+	for _, clusterFilter := range cfg.GrafanaClusterFilters {
+		ic, err := NewInstanceCache(
+			InstanceCacheConfig{
+				CompleteCacheRefreshDuration:    cfg.CompleteCacheRefreshDuration,
+				IncrementalCacheRefreshDuration: cfg.IncrementalCacheRefreshDuration,
+				GrafanaClusterFilter:            clusterFilter,
+				InstanceTypes:                   []client.InstanceType{client.Grafana},
+			},
+			logger,
+			[]client.InstanceType{client.Grafana},
+			gclient,
+		)
+		if err != nil {
+			return nil, err
+		}
+		caches = append(caches, ic)
+	}
+
+	return &multiInstanceCache{
+		instanceCaches: caches,
+	}, nil
+}
+
+// GetInstanceInfo implements InstanceCache
+func (c *multiInstanceCache) GetInstanceInfo(instanceType client.InstanceType, instanceID int) (client.Instance, error) {
+	var err error
+	var instance client.Instance
+	for _, ch := range c.instanceCaches {
+		instance, err = ch.GetInstanceInfo(instanceType, instanceID)
+		if err == nil {
+			return instance, nil
+		}
+	}
+	return client.Instance{}, err
+}
+
+// GetMetricsInstanceIDByOrgIDAndInstanceName implements InstanceCache
+func (c *multiInstanceCache) GetMetricsInstanceIDByOrgIDAndInstanceName(orgID string, instanceName string) int {
+	for _, ch := range c.instanceCaches {
+		id := ch.GetMetricsInstanceIDByOrgIDAndInstanceName(orgID, instanceName)
+		if id != -1 {
+			return id
+		}
+	}
+	return -1
 }

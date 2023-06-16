@@ -20,7 +20,14 @@ See the [design doc] that explains how this component is going to be used.
        cache is completely refreshed.
     - `incremental_refresh_duration` (default 5m): Duration until instance
        cache is updated with changes.
-
+- `grafana_cluster_filters`: Comma-separated list of cluster ids where grafana instances are hosted. 
+   This option is used for multi cluster cache support. 
+   Some stacks can have their hosted grafana instance in a different cluster than their datasources. 
+   For example, prod-us-central-3 and prod-us-central-4 have hosted grafana instances that are part of the us stack-region, where all data is written to prod-us-central-0.
+   This means that gcom processor should accept multiple hg cluster id's for the instance cache.
+   Cluster id could be got by calling gcom api with `name` equals name of the cluster. 
+   Example: https://admin.grafana.com/api/hg-clusters?name=prod-us-central-0 
+    
 Example of usage with the routing processor:
 
 ```yaml

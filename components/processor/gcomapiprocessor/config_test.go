@@ -33,6 +33,7 @@ func TestLoadConfig(t *testing.T) {
 					CompleteRefreshDuration:    duration,
 					IncrementalRefreshDuration: duration,
 				},
+				GrafanaClusterFilters: "1,2",
 			},
 		},
 		{
@@ -42,6 +43,10 @@ func TestLoadConfig(t *testing.T) {
 		{
 			id:           component.NewIDWithName(typeStr, "missing_key"),
 			errorMessage: "grafana API key is missing",
+		},
+		{
+			id:           component.NewIDWithName(typeStr, "missing_grafana_cluster_filters"),
+			errorMessage: "grafana cluster filters is missing",
 		},
 	}
 

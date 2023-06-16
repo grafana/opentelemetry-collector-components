@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 
 	collectorclient "go.opentelemetry.io/collector/client"
 	"go.opentelemetry.io/collector/component"
@@ -62,14 +63,13 @@ func newAPIProcessor(cfg *Config, settings component.TelemetrySettings, s signal
 		cl = gcom.NewMockGcomClient()
 	}
 
-	ic, err := cache.NewInstanceCache(
-		cache.InstanceCacheConfig{
+	ic, err := cache.NewMultiInstanceCache(
+		cache.InstanceCachesConfig{
 			CompleteCacheRefreshDuration:    cfg.Cache.CompleteRefreshDuration,
 			IncrementalCacheRefreshDuration: cfg.Cache.IncrementalRefreshDuration,
-			InstanceTypes:                   []client.InstanceType{client.Grafana},
+			GrafanaClusterFilters:           parseGrafanaClusterFilters(cfg.GrafanaClusterFilters),
 		},
 		logger,
-		[]client.InstanceType{client.Grafana},
 		cl,
 	)
 	if err != nil {
@@ -168,4 +168,13 @@ func extractTenantIDAndURL(s signal, i client.Instance) (int, string) {
 	}
 	// should not happen
 	return 0, ""
+}
+
+func parseGrafanaClusterFilters(clusterFilters string) []string {
+	var out []string
+	clusterIDs := strings.Split(clusterFilters, ",")
+	for _, clusterID := range clusterIDs {
+		out = append(out, strings.TrimSpace(clusterID))
+	}
+	return out
 }

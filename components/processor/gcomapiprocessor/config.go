@@ -9,9 +9,10 @@ import (
 )
 
 type Config struct {
-	ServiceName string       `mapstructure:"service_name"`
-	Client      clientConfig `mapstructure:"client"`
-	Cache       cacheConfig  `mapstructure:"cache"`
+	ServiceName           string       `mapstructure:"service_name"`
+	Client                clientConfig `mapstructure:"client"`
+	Cache                 cacheConfig  `mapstructure:"cache"`
+	GrafanaClusterFilters string       `mapstructure:"grafana_cluster_filters"`
 }
 
 type clientConfig struct {
@@ -33,6 +34,9 @@ func (c *Config) Validate() error {
 	}
 	if c.Client.Key == "" {
 		return errors.New("grafana API key is missing")
+	}
+	if c.GrafanaClusterFilters == "" {
+		return errors.New("grafana cluster filters is missing")
 	}
 	return nil
 }
