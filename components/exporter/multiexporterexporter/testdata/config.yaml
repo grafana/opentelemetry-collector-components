@@ -1,0 +1,25 @@
+multiexporter:
+  mapping_key: 'X-Scope-InstanceURL'
+  metrics:
+    exporter: otlphttp
+    mapping:
+      "url": "http"
+    http_client:
+      tls:
+        insecure: true
+      auth:
+        authenticator: headers_setter
+  logs:
+    exporter: loki
+    mapping:
+      "url1": "http"
+  traces:
+    exporter: otlp
+    grpc_client:
+      tls:
+        insecure: true
+      auth:
+        authenticator: headers_setter
+    mapping:
+      "url2": "http"
+      "url3": "http"

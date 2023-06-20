@@ -121,7 +121,14 @@ local buildAndPushImages = {
   + triggers.pr
   + triggers.main,
 
-  pipeline('build', depends_on=['check', 'test gcom api processor'])
+  pipeline('test multiexporter exporter')
+  + withStep(
+    step('verify', commands=['cd components/exporter/multiexporterexporter && go test -v ./...'])
+  )
+  + triggers.pr
+  + triggers.main,
+
+  pipeline('build', depends_on=['check', 'test gcom api processor', 'test multiexporter exporter'])
   + withStep(buildDistributions.step)
   + withSteps([buildBinaries.step(app) for app in apps])
   + withStep(generateTags.step)
