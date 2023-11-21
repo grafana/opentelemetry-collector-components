@@ -1,3 +1,7 @@
+# Deprecation notice
+
+This repository is now archived. The distributions we had here are now [available at a new home](https://github.com/jpkrohling/otelcol-distributions).
+
 # OpenTelemetry Collector components by Grafana Labs
 
 This repository will contain a set of components created by Grafana Labs and not available upstream ([open-telemetry/opentelemetry-collector](https://github.com/open-telemetry/opentelemetry-collector) or [open-telemetry/opentelemetry-collector-contrib](https://github.com/open-telemetry/opentelemetry-collector-contrib/)), typically because the components are experimental.
