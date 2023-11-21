@@ -1,4 +1,4 @@
-FROM alpine:3.16
+FROM alpine:3
 
 ARG USER_UID=10001
 USER ${USER_UID}
