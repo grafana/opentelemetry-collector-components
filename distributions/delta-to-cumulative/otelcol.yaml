@@ -1,0 +1,25 @@
+extensions:
+  health_check:
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+
+processors:
+  deltatocumulative:
+
+exporters:
+  otlp:
+    endpoint: example.com:4317
+
+service:
+  extensions: [health_check]
+  pipelines:
+    metrics:
+      receivers:
+        - otlp
+      processors:
+        - deltatocumulative
+      exporters:
+        - otlp

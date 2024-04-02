@@ -1,0 +1,15 @@
+[Unit]
+Description=Delta to cummulative distribution of the OpenTelemetry Collector
+After=network.target
+
+[Service]
+EnvironmentFile=/etc/delta-to-cumulative/delta-to-cumulative.conf
+ExecStart=/usr/bin/delta-to-cumulative $OTELCOL_OPTIONS
+KillMode=mixed
+Restart=on-failure
+Type=simple
+User=delta-to-cumulative
+Group=delta-to-cumulative
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,14 @@
+name: Release loadbalancing
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  release:
+    name: Release loadbalancing
+    uses: ./.github/workflows/base-release.yaml
+    with:
+      distribution: loadbalancing
+    secrets: inherit
+    permissions: write-all

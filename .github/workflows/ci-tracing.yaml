@@ -1,0 +1,15 @@
+name: Continuous Integration - tracing
+
+on:
+  workflow_run:
+    workflows: [Continuous Integration]
+    types:
+      - completed
+
+jobs:
+  release:
+    name: Continuous Integration - sidecar - GoReleaser
+    uses: ./.github/workflows/base-goreleaser-ci.yaml
+    with:
+      distribution: tracing
+    secrets: inherit

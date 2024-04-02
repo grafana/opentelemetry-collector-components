@@ -1,0 +1,15 @@
+name: Continuous Integration - load-balancing
+
+on:
+  workflow_run:
+    workflows: [Continuous Integration]
+    types:
+      - completed
+
+jobs:
+  release:
+    name: Continuous Integration - loadbalancing - GoReleaser
+    uses: ./.github/workflows/base-goreleaser-ci.yaml
+    with:
+      distribution: loadbalancing
+    secrets: inherit

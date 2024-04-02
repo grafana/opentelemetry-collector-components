@@ -1,0 +1,43 @@
+name: Reusable GoReleaser CI workflow
+
+on:
+  workflow_call:
+    inputs:
+      distribution:
+        required: true
+        type: string
+
+jobs:
+  check-goreleaser:
+    name: Check GoReleaser Configuration for ${{ inputs.distribution }}
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64,ppc64le
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.21
+
+      - uses: anchore/sbom-action/download-syft@v0.15.10
+    
+      - name: Generate the sources
+        run: make generate-sources
+
+      - name: Run GoReleaser for ${{ inputs.distribution }}
+        uses: goreleaser/goreleaser-action@v5
+        with:
+          workdir: distributions/${{ inputs.distribution }}
+          version: latest
+          args: --snapshot --rm-dist --timeout 2h
