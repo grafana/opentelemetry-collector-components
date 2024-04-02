@@ -10,6 +10,7 @@ extensions:
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/healthcheckextension v0.97.0
 receivers:
   - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.97.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/datadogreceiver v0.97.0
 exporters:
   - gomod: go.opentelemetry.io/collector/exporter/otlpexporter v0.97.0
 processors:
