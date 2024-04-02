@@ -1,4 +1,4 @@
-name: Release loadbalancing
+name: Release delta-to-cumulative
 
 on:
   release:
@@ -6,9 +6,9 @@ on:
 
 jobs:
   release:
-    name: Release loadbalancing
+    name: Release delta-to-cumulative
     uses: ./.github/workflows/base-release.yaml
     with:
-      distribution: loadbalancing
+      distribution: delta-to-cumulative
     secrets: inherit
     permissions: write-all

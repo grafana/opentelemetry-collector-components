@@ -1,4 +1,4 @@
-name: Continuous Integration - tracing
+name: Continuous Integration - delta-to-cumulative
 
 on:
   workflow_run:
@@ -8,8 +8,8 @@ on:
 
 jobs:
   release:
-    name: Continuous Integration - sidecar - GoReleaser
+    name: Continuous Integration - delta-to-cumulative - GoReleaser
     uses: ./.github/workflows/base-goreleaser-ci.yaml
     with:
-      distribution: tracing
+      distribution: delta-to-cumulative
     secrets: inherit
