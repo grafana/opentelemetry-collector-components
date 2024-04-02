@@ -1,8 +1,8 @@
-# OpenTelemetry Collector distributions by jpkrohling
+# OpenTelemetry Collector distributions
 
-This repository has a personal collection of OpenTelemetry Collector distributions curated by [@jpkrohling](https://github.com/jpkrohling).
+This repository has private collection of OpenTelemetry Collector distributions used by Grafana Labs in non-supported settings.
 
-At every new version of the Collector, distributions are updated and published.
+No support is provided by distributions present in this repository.
 
 ## Adding a new distribution
 
