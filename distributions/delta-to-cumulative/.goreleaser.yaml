@@ -1,0 +1,135 @@
+project_name: delta-to-cumulative
+builds:
+    - id: delta-to-cumulative
+      goos:
+        - darwin
+        - linux
+        - windows
+      goarch:
+        - "386"
+        - amd64
+        - arm64
+        - ppc64le
+      ignore:
+        - goos: darwin
+          goarch: "386"
+        - goos: windows
+          goarch: arm64
+      dir: _build
+      binary: delta-to-cumulative
+      ldflags:
+        - -s
+        - -w
+      flags:
+        - -trimpath
+      env:
+        - CGO_ENABLED=0
+archives:
+    - id: delta-to-cumulative
+      builds:
+        - delta-to-cumulative
+      name_template: '{{ .Binary }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}{{ if .Mips }}_{{ .Mips }}{{ end }}'
+nfpms:
+    - package_name: delta-to-cumulative
+      contents:
+        - src: delta-to-cumulative.service
+          dst: /lib/systemd/system/delta-to-cumulative.service
+        - src: delta-to-cumulative.conf
+          dst: /etc/delta-to-cumulative/delta-to-cumulative.conf
+          type: config|noreplace
+        - src: otelcol.yaml
+          dst: /etc/delta-to-cumulative/config.yaml
+          type: config
+      scripts:
+        preinstall: preinstall.sh
+        postinstall: postinstall.sh
+        preremove: preremove.sh
+      id: delta-to-cumulative
+      builds:
+        - delta-to-cumulative
+      formats:
+        - apk
+        - deb
+        - rpm
+      maintainer: Juraci Paixão Kröhling <distributions@kroehling.de>
+      description: delta-to-cumulative distribution of the OpenTelemetry Collector
+      license: Apache 2.0
+checksum:
+    name_template: '{{ .ProjectName }}_checksums.txt'
+dockers:
+    - goos: linux
+      goarch: "386"
+      dockerfile: Dockerfile
+      image_templates:
+        - ghcr.io/grafana/opentelemetry-collector-components/delta-to-cumulative:{{ .Version }}-386
+      extra_files:
+        - otelcol.yaml
+      build_flag_templates:
+        - --pull
+        - --platform=linux/386
+        - --label=org.opencontainers.image.created={{.Date}}
+        - --label=org.opencontainers.image.name={{.ProjectName}}
+        - --label=org.opencontainers.image.revision={{.FullCommit}}
+        - --label=org.opencontainers.image.version={{.Version}}
+        - --label=org.opencontainers.image.source={{.GitURL}}
+      use: buildx
+    - goos: linux
+      goarch: amd64
+      dockerfile: Dockerfile
+      image_templates:
+        - ghcr.io/grafana/opentelemetry-collector-components/delta-to-cumulative:{{ .Version }}-amd64
+      extra_files:
+        - otelcol.yaml
+      build_flag_templates:
+        - --pull
+        - --platform=linux/amd64
+        - --label=org.opencontainers.image.created={{.Date}}
+        - --label=org.opencontainers.image.name={{.ProjectName}}
+        - --label=org.opencontainers.image.revision={{.FullCommit}}
+        - --label=org.opencontainers.image.version={{.Version}}
+        - --label=org.opencontainers.image.source={{.GitURL}}
+      use: buildx
+    - goos: linux
+      goarch: arm64
+      dockerfile: Dockerfile
+      image_templates:
+        - ghcr.io/grafana/opentelemetry-collector-components/delta-to-cumulative:{{ .Version }}-arm64
+      extra_files:
+        - otelcol.yaml
+      build_flag_templates:
+        - --pull
+        - --platform=linux/arm64
+        - --label=org.opencontainers.image.created={{.Date}}
+        - --label=org.opencontainers.image.name={{.ProjectName}}
+        - --label=org.opencontainers.image.revision={{.FullCommit}}
+        - --label=org.opencontainers.image.version={{.Version}}
+        - --label=org.opencontainers.image.source={{.GitURL}}
+      use: buildx
+    - goos: linux
+      goarch: ppc64le
+      dockerfile: Dockerfile
+      image_templates:
+        - ghcr.io/grafana/opentelemetry-collector-components/delta-to-cumulative:{{ .Version }}-ppc64le
+      extra_files:
+        - otelcol.yaml
+      build_flag_templates:
+        - --pull
+        - --platform=linux/ppc64le
+        - --label=org.opencontainers.image.created={{.Date}}
+        - --label=org.opencontainers.image.name={{.ProjectName}}
+        - --label=org.opencontainers.image.revision={{.FullCommit}}
+        - --label=org.opencontainers.image.version={{.Version}}
+        - --label=org.opencontainers.image.source={{.GitURL}}
+      use: buildx
+docker_manifests:
+    - name_template: ghcr.io/grafana/opentelemetry-collector-components/delta-to-cumulative:{{ .Version }}
+      image_templates:
+        - ghcr.io/grafana/opentelemetry-collector-components/delta-to-cumulative:{{ .Version }}-386
+        - ghcr.io/grafana/opentelemetry-collector-components/delta-to-cumulative:{{ .Version }}-amd64
+        - ghcr.io/grafana/opentelemetry-collector-components/delta-to-cumulative:{{ .Version }}-arm64
+        - ghcr.io/grafana/opentelemetry-collector-components/delta-to-cumulative:{{ .Version }}-ppc64le
+sboms:
+    - id: archive
+      artifacts: archive
+    - id: package
+      artifacts: package
