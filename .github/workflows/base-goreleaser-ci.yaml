@@ -36,7 +36,7 @@ jobs:
         run: make generate-sources
 
       - name: Run GoReleaser for ${{ inputs.distribution }}
-        uses: goreleaser/goreleaser-action@v5
+        uses: goreleaser/goreleaser-action@e435ccd777264be153ace6237001ef4d979d3a7a # v6
         with:
           workdir: distributions/${{ inputs.distribution }}
           version: latest
