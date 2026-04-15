@@ -4,8 +4,8 @@
     "config:recommended"
   ],
   "ocb": {
-    "fileMatch": [
-      "^distributions\\/.*manifest\\.ya?ml$"
+    "managerFilePatterns": [
+      "/^distributions\\/.*manifest\\.ya?ml$/"
     ]
   },
   "packageRules": [
@@ -19,10 +19,11 @@
   ],
   "customManagers": [
     {
+      "customType": "regex",
       "description": "version field and OTELCOL_BUILDER_VERSION should follow upstream",
-      "fileMatch": [
-        "^distributions\\/.*manifest\\.ya?ml$",
-        "^Makefile$"
+      "managerFilePatterns": [
+        "/^distributions\\/.*manifest\\.ya?ml$/",
+        "/^Makefile$/"
       ],
       "matchStrings": [
         "\\sversion:\\s+(?<currentValue>\\S+)",
