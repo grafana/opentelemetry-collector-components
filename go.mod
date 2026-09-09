@@ -18,7 +18,7 @@ require (
 	github.com/charmbracelet/lipgloss v0.9.1 // indirect
 	github.com/elliotchance/orderedmap/v2 v2.2.0 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
-	github.com/goreleaser/fileglob v1.3.0 // indirect
+	github.com/goreleaser/fileglob v1.4.1 // indirect
 	github.com/invopop/jsonschema v0.12.0 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
